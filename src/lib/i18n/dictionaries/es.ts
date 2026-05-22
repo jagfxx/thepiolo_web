@@ -2,7 +2,7 @@ import type { Dictionary } from "../types";
 
 export const es: Dictionary = {
   meta: {
-    title: "THEPIOLO — Estudio Web Premium | Diseño y Desarrollo",
+    title: "Thepiolo — Estudio Web Premium | Diseño y Desarrollo",
     description:
       "THEPIOLO: estudio web premium en Medellín, Colombia. Diseño UI/UX, desarrollo Next.js, branding, landing pages y despliegue. Desarrollador creativo para productos digitales de alto nivel.",
   },

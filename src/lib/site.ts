@@ -1,7 +1,7 @@
 export const SITE_URL = "https://thepiolo.icu";
 
 export const siteConfig = {
-  name: "THEPIOLO",
+  name: "Thepiolo",
   legalName: "THEPIOLO Digital Web Studio",
   url: SITE_URL,
   locale: "es_CO",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig, SITE_URL } from "./site";
 
-const defaultTitle = "THEPIOLO — Estudio Web Premium | Diseño, Desarrollo y Branding";
+const defaultTitle = "Thepiolo — Estudio Web Premium | Diseño, Desarrollo y Branding";
 const defaultDescription =
   "THEPIOLO: estudio web en Medellín. Diseño UI/UX, desarrollo Next.js, landing pages, branding y despliegue. Portafolio premium para marcas que buscan presencia digital de alto nivel.";
 
@@ -9,7 +9,7 @@ export const siteMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: defaultTitle,
-    template: "%s | THEPIOLO",
+    template: "%s | Thepiolo",
   },
   description: defaultDescription,
   applicationName: siteConfig.name,

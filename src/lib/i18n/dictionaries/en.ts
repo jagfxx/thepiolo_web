@@ -2,7 +2,7 @@ import type { Dictionary } from "../types";
 
 export const en: Dictionary = {
   meta: {
-    title: "THEPIOLO — Premium Web Studio | Web Design & Development",
+    title: "Thepiolo — Premium Web Studio | Web Design & Development",
     description:
       "THEPIOLO: premium web studio in Medellín, Colombia. UI/UX design, Next.js development, branding, landing pages and deployment. Hire a creative developer for high-end digital products.",
   },
