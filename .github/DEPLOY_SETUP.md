@@ -131,3 +131,26 @@ git remote -v
 ```
 
 **Commits bloqueados:** Usa el mismo email de GitHub que en TSM (`133823825+jagfxx@users.noreply.github.com`).
+
+**Pantalla blanca / "Application error" en el navegador:** casi siempre son los assets de Next (`/_next/static/...`) devolviendo **400**. Suele pasar si en Nginx hay un `location /_next/static` **sin** `proxy_set_header Host $host;`. Usa el `nginx-config-thepiolo.txt` actual (un solo `location /`) y recarga:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Luego rebuild limpio en la VPS:
+
+```bash
+cd ~/thepiolo_web
+git pull origin main
+rm -rf .next
+npm ci
+npm run build
+pm2 restart thepiolo-web
+```
+
+Comprueba que un chunk responda **200** (cambia el hash si cambió el build):
+
+```bash
+curl -I "https://thepiolo.icu/_next/static/chunks/webpack-0c08feeaeab5776b.js"
+```

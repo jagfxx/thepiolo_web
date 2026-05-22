@@ -51,8 +51,16 @@ jobs:
             echo "📦 Instalando dependencias..."
             npm ci --production=false
 
+            echo "🧹 Limpiando build anterior..."
+            rm -rf .next
+
             echo "🔨 Construyendo la aplicación..."
             npm run build
+
+            if [ ! -d ".next/static" ]; then
+              echo "❌ Build incompleto: falta .next/static"
+              exit 1
+            fi
 
             echo "🔄 Reiniciando aplicación con PM2..."
             if command -v pm2 &> /dev/null; then
