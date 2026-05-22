@@ -59,35 +59,29 @@ export function Contact() {
         <motion.div
           variants={fadeUp}
           custom={5}
-          className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted"
+          className="mt-8 grid grid-cols-1 gap-3 text-xs text-muted sm:grid-cols-3 sm:gap-4"
         >
-          <a
-            href={mailtoUrl}
-            className="transition-colors hover:text-foreground"
-          >
-            {siteConfig.email}
-          </a>
-          <span className="hidden text-border sm:inline" aria-hidden>
-            ·
-          </span>
           <a
             href={siteConfig.instagram.url}
             target="_blank"
             rel="noopener noreferrer me"
-            className="transition-colors hover:text-foreground"
+            className="text-center transition-colors hover:text-foreground"
           >
             @{siteConfig.instagram.handle}
           </a>
-          <span className="hidden text-border sm:inline" aria-hidden>
-            ·
-          </span>
           <a
             href={siteConfig.whatsapp.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-foreground"
+            className="text-center transition-colors hover:text-foreground"
           >
             {siteConfig.whatsapp.display}
+          </a>
+          <a
+            href={mailtoUrl}
+            className="text-center transition-colors hover:text-foreground"
+          >
+            {siteConfig.email}
           </a>
         </motion.div>
 
