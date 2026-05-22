@@ -81,6 +81,10 @@ Preview screenshot in `public/projects/tsm-preview.png`.
 - Favicon: `public/THEPIOLO-FAVICON-05.svg` (also `src/app/icon.svg`)
 - Config: `src/lib/site.ts`, `src/lib/seo.ts`
 
+## Deploy (VPS)
+
+Push to `main` runs `.github/workflows/deploy.yml` (pull, clean build, PM2 `thepiolo-web` on port 3001). See `.github/DEPLOY_SETUP.md`.
+
 ## Customize
 
 - Links and email in `src/lib/site.ts`
