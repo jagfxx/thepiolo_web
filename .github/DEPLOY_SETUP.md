@@ -65,10 +65,12 @@ Los secrets son **por repositorio**. Copia los mismos valores que en `TSM-WEB`:
 | `VPS_HOST` | IP de la VPS |
 | `VPS_USER` | `admin_dany` |
 | `VPS_KEY` | Clave **privada** SSH (ver abajo) |
-| `EMAIL_USERNAME` | Gmail para notificaciones (opcional) |
-| `EMAIL_PASS` | Contraseña de aplicación Gmail (opcional) |
+| `EMAIL_USERNAME` | Gmail que envía correos (mismo que TSM-WEB) |
+| `EMAIL_PASS` | Contraseña de aplicación Gmail (mismo que TSM-WEB) |
 
-Sin `EMAIL_*` el deploy funciona igual; solo fallará el workflow de correo.
+Guía de correo: [.github/EMAIL_SETUP.md](EMAIL_SETUP.md)
+
+Sin `EMAIL_*` el **deploy** sigue funcionando; el workflow **Email Notification on Push** fallará con un mensaje claro hasta que los configures.
 
 ### ¿Qué es `VPS_KEY`?
 

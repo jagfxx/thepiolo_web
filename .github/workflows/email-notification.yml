@@ -9,6 +9,16 @@ jobs:
   send-email:
     runs-on: ubuntu-latest
     steps:
+      - name: Verify email secrets are configured
+        run: |
+          if [ -z "${{ secrets.EMAIL_USERNAME }}" ] || [ -z "${{ secrets.EMAIL_PASS }}" ]; then
+            echo "::error::Faltan los secrets EMAIL_USERNAME y/o EMAIL_PASS en este repositorio."
+            echo "::error::Configúralos en Settings → Secrets and variables → Actions"
+            echo "::error::Guía: .github/EMAIL_SETUP.md (usa los mismos valores que en TSM-WEB)"
+            exit 1
+          fi
+          echo "✅ Secrets de correo detectados"
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -73,7 +83,7 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASS }}
           subject: "Nuevo Push a Main - THEPIOLO Web"
-          to: thepiolo.co@gmail.com
+          to: thepiolo.co@gmail.com,transportservicemedellin@gmail.com
           from: THEPIOLO <${{ secrets.EMAIL_USERNAME }}>
           html_body: |
             <!DOCTYPE html>
@@ -90,12 +100,12 @@ jobs:
                       <tr>
                         <td style="background: linear-gradient(135deg, #b440ff, #ff71e4, #ff2e2e); padding: 30px; text-align: center;">
                           <h1 style="margin: 0; font-size: 26px; font-weight: bold; color: #ffffff;">Nuevo Push a Main</h1>
-                          <p style="margin: 10px 0 0 0; font-size: 15px; color: rgba(255,255,255,0.9);">THEPIOLO — Portfolio Web</p>
+                          <p style="margin: 10px 0 0 0; font-size: 15px; color: rgba(255,255,255,0.9);">THEPIOLO — Portfolio Web (thepiolo.icu)</p>
                         </td>
                       </tr>
                       <tr>
                         <td style="padding: 30px;">
-                          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border-left: 4px solid #b440ff; border-radius: 4px; margin-bottom: 20px;">
+                          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border-left: 4px solid #b440ff; border-radius: 4px; margin-bottom: 20px; border: 1px solid #2a2a3d;">
                             <tr>
                               <td style="padding: 15px;">
                                 <strong style="color: #ff71e4; font-size: 14px;">Mensaje del Commit:</strong><br>
@@ -106,32 +116,54 @@ jobs:
                           <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
                             <tr>
                               <td width="33%" align="center" style="padding: 5px;">
-                                <div style="background-color: #222233; border-radius: 4px; padding: 15px;">
-                                  <div style="font-size: 28px; font-weight: bold; color: #b440ff;">${{ steps.commit-info.outputs.added }}</div>
-                                  <div style="font-size: 11px; color: #8b8b9e; margin-top: 5px;">AGREGADOS</div>
-                                </div>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border: 1px solid #2a2a3d; border-radius: 4px;">
+                                  <tr>
+                                    <td align="center" style="padding: 15px;">
+                                      <div style="font-size: 28px; font-weight: bold; color: #b440ff;">${{ steps.commit-info.outputs.added }}</div>
+                                      <div style="font-size: 11px; color: #8b8b9e; margin-top: 5px; text-transform: uppercase;">Agregados</div>
+                                    </td>
+                                  </tr>
+                                </table>
                               </td>
                               <td width="33%" align="center" style="padding: 5px;">
-                                <div style="background-color: #222233; border-radius: 4px; padding: 15px;">
-                                  <div style="font-size: 28px; font-weight: bold; color: #ff71e4;">${{ steps.commit-info.outputs.modified }}</div>
-                                  <div style="font-size: 11px; color: #8b8b9e; margin-top: 5px;">MODIFICADOS</div>
-                                </div>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border: 1px solid #2a2a3d; border-radius: 4px;">
+                                  <tr>
+                                    <td align="center" style="padding: 15px;">
+                                      <div style="font-size: 28px; font-weight: bold; color: #ff71e4;">${{ steps.commit-info.outputs.modified }}</div>
+                                      <div style="font-size: 11px; color: #8b8b9e; margin-top: 5px; text-transform: uppercase;">Modificados</div>
+                                    </td>
+                                  </tr>
+                                </table>
                               </td>
                               <td width="33%" align="center" style="padding: 5px;">
-                                <div style="background-color: #222233; border-radius: 4px; padding: 15px;">
-                                  <div style="font-size: 28px; font-weight: bold; color: #ff2e2e;">${{ steps.commit-info.outputs.deleted }}</div>
-                                  <div style="font-size: 11px; color: #8b8b9e; margin-top: 5px;">ELIMINADOS</div>
-                                </div>
+                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border: 1px solid #2a2a3d; border-radius: 4px;">
+                                  <tr>
+                                    <td align="center" style="padding: 15px;">
+                                      <div style="font-size: 28px; font-weight: bold; color: #ff2e2e;">${{ steps.commit-info.outputs.deleted }}</div>
+                                      <div style="font-size: 11px; color: #8b8b9e; margin-top: 5px; text-transform: uppercase;">Eliminados</div>
+                                    </td>
+                                  </tr>
+                                </table>
                               </td>
                             </tr>
                           </table>
-                          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border-left: 4px solid #b440ff; border-radius: 4px; margin-bottom: 20px;">
+                          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border-left: 4px solid #b440ff; border-radius: 4px; margin-bottom: 20px; border: 1px solid #2a2a3d;">
                             <tr>
                               <td style="padding: 15px; color: #c8c8d4; font-size: 13px;">
                                 <strong style="color: #ff71e4;">Autor:</strong> ${{ steps.commit-info.outputs.commit_author }}<br>
                                 <strong style="color: #ff71e4;">Fecha:</strong> ${{ steps.commit-info.outputs.commit_date }}<br>
                                 <strong style="color: #ff71e4;">Hash:</strong> ${{ steps.commit-info.outputs.commit_hash }}<br>
                                 <strong style="color: #ff71e4;">Repositorio:</strong> ${{ github.repository }}
+                              </td>
+                            </tr>
+                          </table>
+                          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #222233; border-left: 4px solid #b440ff; border-radius: 4px; margin-bottom: 20px; border: 1px solid #2a2a3d;">
+                            <tr>
+                              <td style="padding: 15px;">
+                                <strong style="color: #ff71e4; font-size: 13px;">Archivos Cambiados:</strong>
+                                <div style="background-color: #13131e; padding: 12px; margin-top: 10px; border-radius: 4px; border: 1px solid #2a2a3d; font-family: 'Courier New', monospace; font-size: 11px; max-height: 200px; overflow-y: auto;">
+                                  <pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word; font-family: 'Courier New', monospace; color: #c8c8d4;">${{ steps.commit-info.outputs.files_changed }}</pre>
+                                </div>
                               </td>
                             </tr>
                           </table>

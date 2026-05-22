@@ -41,7 +41,7 @@ Guía completa: [.github/DEPLOY_SETUP.md](.github/DEPLOY_SETUP.md)
 
 **En GitHub (repo `thepiolo_web`)** copia los mismos secrets que en TSM-WEB:
 
-`VPS_HOST`, `VPS_USER`, `VPS_KEY` — y opcionalmente `EMAIL_USERNAME`, `EMAIL_PASS`.
+`VPS_HOST`, `VPS_USER`, `VPS_KEY` — y para correos (copiar de TSM-WEB): `EMAIL_USERNAME`, `EMAIL_PASS`. Ver [.github/EMAIL_SETUP.md](.github/EMAIL_SETUP.md).
 
 **En la VPS (una vez):** clonar repo, `npm run build`, `pm2 start ecosystem.config.js`, configurar Nginx (`nginx-config-thepiolo.txt`).
 
