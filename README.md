@@ -30,6 +30,24 @@ npm run build
 npm start
 ```
 
+## Deploy on Vercel
+
+This project is **Next.js** (not a static `public/` folder).
+
+In Vercel → Project → **Settings → General**:
+
+| Setting | Value |
+|---------|--------|
+| Framework Preset | **Next.js** |
+| Root Directory | *(empty)* |
+| Build Command | `npm run build` |
+| Output Directory | *(empty — do not use `public` or `out`)* |
+| Install Command | `npm install` |
+
+If you see `404: NOT_FOUND`, the Output Directory is usually wrong. Clear it, save, then **Redeploy** from the latest `main` commit.
+
+`vercel.json` in the repo forces the Next.js framework.
+
 ## Languages
 
 - English (`en`) and Spanish (`es`) via the navbar switcher (EN / ES)
