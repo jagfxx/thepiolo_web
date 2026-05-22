@@ -65,12 +65,8 @@ Los secrets son **por repositorio**. Copia los mismos valores que en `TSM-WEB`:
 | `VPS_HOST` | IP de la VPS |
 | `VPS_USER` | `admin_dany` |
 | `VPS_KEY` | Clave **privada** SSH (ver abajo) |
-| `EMAIL_USERNAME` | Gmail que envía correos (mismo que TSM-WEB) |
-| `EMAIL_PASS` | Contraseña de aplicación Gmail (mismo que TSM-WEB) |
 
-Guía de correo: [.github/EMAIL_SETUP.md](EMAIL_SETUP.md)
-
-Sin `EMAIL_*` el **deploy** sigue funcionando; el workflow **Email Notification on Push** fallará con un mensaje claro hasta que los configures.
+Este repositorio **no** incluye notificaciones por correo (a diferencia de TSM-WEB). No necesitas `EMAIL_USERNAME` ni `EMAIL_PASS` aquí.
 
 ### ¿Qué es `VPS_KEY`?
 
@@ -101,7 +97,6 @@ La **clave pública** (`deploy_key.pub`) debe estar en `~/.ssh/authorized_keys` 
 | Archivo | Qué hace |
 |---------|----------|
 | `.github/workflows/deploy.yml` | Push a `main` → SSH → pull → build → `pm2 restart thepiolo-web` |
-| `.github/workflows/email-notification.yml` | Email al hacer push (opcional) |
 
 ## PM2 en la VPS
 
