@@ -1,0 +1,17 @@
+{
+  "name": "THEPIOLO — Digital Web Studio",
+  "short_name": "THEPIOLO",
+  "description": "Estudio web premium: diseño, desarrollo, branding y despliegue.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#13131e",
+  "theme_color": "#13131e",
+  "icons": [
+    {
+      "src": "/THEPIOLO-ONLYLOGO-05.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

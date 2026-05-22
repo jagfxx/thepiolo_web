@@ -76,9 +76,20 @@ export type Dictionary = {
     titleHighlight: string;
     description: string;
     responseTime: string;
+    directLinks: string;
+  };
+  social: {
+    instagram: string;
+    instagramAria: string;
+    whatsapp: string;
+    whatsappAria: string;
+    email: string;
+    emailAria: string;
+    connect: string;
   };
   footer: {
     tagline: string;
     rights: string;
+    connect: string;
   };
 };

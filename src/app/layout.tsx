@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { DM_Sans, Syne } from "next/font/google";
 import { Providers } from "@/components/Providers";
+import { JsonLd } from "@/components/JsonLd";
+import { siteMetadata } from "@/lib/seo";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -15,37 +18,7 @@ const syne = Syne({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "THEPIOLO — Premium Digital Web Studio",
-  description:
-    "THEPIOLO is a modern web studio crafting premium digital experiences—web design, development, branding, and deployment for ambitious brands.",
-  keywords: [
-    "THEPIOLO",
-    "web studio",
-    "web developer",
-    "UI/UX",
-    "branding",
-    "landing pages",
-    "Medellín",
-    "digital agency",
-  ],
-  authors: [{ name: "THEPIOLO" }],
-  openGraph: {
-    title: "THEPIOLO — Premium Digital Web Studio",
-    description:
-      "Premium digital experiences at the intersection of engineering, design, and brand.",
-    type: "website",
-    locale: "en_US",
-    siteName: "THEPIOLO",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "THEPIOLO — Premium Digital Web Studio",
-    description:
-      "Premium digital experiences at the intersection of engineering, design, and brand.",
-  },
-  robots: { index: true, follow: true },
-};
+export const metadata: Metadata = siteMetadata;
 
 export default function RootLayout({
   children,
@@ -53,8 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${syne.variable}`}>
+    <html lang="es" className={`${dmSans.variable} ${syne.variable}`}>
+      <head>
+        <link rel="me" href={siteConfig.instagram.url} />
+      </head>
       <body className="min-h-screen overflow-x-hidden">
+        <JsonLd />
         <Providers>{children}</Providers>
       </body>
     </html>

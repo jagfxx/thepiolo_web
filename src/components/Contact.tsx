@@ -3,8 +3,9 @@
 import { motion } from "framer-motion";
 import { fadeUp, scaleIn } from "@/lib/motion";
 import { useLanguage } from "@/lib/i18n/context";
-import { GradientButton } from "@/components/ui/GradientButton";
+import { siteConfig, mailtoUrl } from "@/lib/site";
 import { GlowOrb } from "@/components/ui/GlowOrb";
+import { SocialLinks } from "@/components/SocialLinks";
 
 export function Contact() {
   const { dict } = useLanguage();
@@ -43,20 +44,54 @@ export function Contact() {
           {c.description}
         </motion.p>
 
-        <motion.div
+        <motion.p
           variants={fadeUp}
           custom={3}
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-10 font-mono text-xs uppercase tracking-[0.15em] text-muted"
         >
-          <GradientButton href="mailto:hello@thepiolo.com" external>
-            hello@thepiolo.com
-          </GradientButton>
-          <GradientButton href="https://github.com" variant="secondary" external>
-            GitHub
-          </GradientButton>
+          {c.directLinks}
+        </motion.p>
+
+        <motion.div variants={fadeUp} custom={4} className="mt-6">
+          <SocialLinks variant="buttons" />
         </motion.div>
 
-        <motion.p variants={fadeUp} custom={4} className="mt-8 text-xs text-muted">
+        <motion.div
+          variants={fadeUp}
+          custom={5}
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-muted"
+        >
+          <a
+            href={mailtoUrl}
+            className="transition-colors hover:text-foreground"
+          >
+            {siteConfig.email}
+          </a>
+          <span className="hidden text-border sm:inline" aria-hidden>
+            ·
+          </span>
+          <a
+            href={siteConfig.instagram.url}
+            target="_blank"
+            rel="noopener noreferrer me"
+            className="transition-colors hover:text-foreground"
+          >
+            @{siteConfig.instagram.handle}
+          </a>
+          <span className="hidden text-border sm:inline" aria-hidden>
+            ·
+          </span>
+          <a
+            href={siteConfig.whatsapp.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-foreground"
+          >
+            {siteConfig.whatsapp.display}
+          </a>
+        </motion.div>
+
+        <motion.p variants={fadeUp} custom={6} className="mt-8 text-xs text-muted">
           {c.responseTime}
         </motion.p>
       </motion.div>

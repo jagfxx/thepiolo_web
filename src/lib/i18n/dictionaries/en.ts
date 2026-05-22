@@ -2,9 +2,9 @@ import type { Dictionary } from "../types";
 
 export const en: Dictionary = {
   meta: {
-    title: "THEPIOLO — Premium Digital Web Studio",
+    title: "THEPIOLO — Premium Web Studio | Web Design & Development",
     description:
-      "THEPIOLO is a modern web studio crafting premium digital experiences—web design, development, branding, and deployment for ambitious brands.",
+      "THEPIOLO: premium web studio in Medellín, Colombia. UI/UX design, Next.js development, branding, landing pages and deployment. Hire a creative developer for high-end digital products.",
   },
   nav: {
     about: "About",
@@ -191,11 +191,22 @@ export const en: Dictionary = {
     titleBefore: "Let's build something",
     titleHighlight: "exceptional",
     description:
-      "Ready for a new site, product, or brand refresh? Reach out and we'll shape the right approach together.",
+      "Ready for a new site, product, or brand refresh? Reach out via email, WhatsApp or Instagram—we'll shape the right approach together.",
     responseTime: "Typically responds within 24–48 hours",
+    directLinks: "Direct channels",
+  },
+  social: {
+    instagram: "Instagram",
+    instagramAria: "Follow THEPIOLO on Instagram @thepiolo.co",
+    whatsapp: "WhatsApp",
+    whatsappAria: "Chat with THEPIOLO on WhatsApp",
+    email: "Email",
+    emailAria: "Send an email to THEPIOLO",
+    connect: "Connect",
   },
   footer: {
     tagline: "Digital Web Studio",
     rights: "All rights reserved.",
+    connect: "Follow & contact",
   },
 };

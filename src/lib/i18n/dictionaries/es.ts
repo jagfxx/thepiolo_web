@@ -2,9 +2,9 @@ import type { Dictionary } from "../types";
 
 export const es: Dictionary = {
   meta: {
-    title: "THEPIOLO — Estudio Web Digital Premium",
+    title: "THEPIOLO — Estudio Web Premium | Diseño y Desarrollo",
     description:
-      "THEPIOLO es un estudio web moderno que crea experiencias digitales premium—diseño web, desarrollo, branding y despliegue para marcas ambiciosas.",
+      "THEPIOLO: estudio web premium en Medellín, Colombia. Diseño UI/UX, desarrollo Next.js, branding, landing pages y despliegue. Desarrollador creativo para productos digitales de alto nivel.",
   },
   nav: {
     about: "Nosotros",
@@ -192,11 +192,22 @@ export const es: Dictionary = {
     titleBefore: "Construyamos algo",
     titleHighlight: "excepcional",
     description:
-      "¿Listo para un nuevo sitio, producto o refresh de marca? Escríbenos y definimos el enfoque ideal juntos.",
+      "¿Listo para un nuevo sitio, producto o refresh de marca? Escríbenos por correo, WhatsApp o Instagram—definimos el enfoque ideal juntos.",
     responseTime: "Respuesta habitual en 24–48 horas",
+    directLinks: "Canales directos",
+  },
+  social: {
+    instagram: "Instagram",
+    instagramAria: "Seguir a THEPIOLO en Instagram @thepiolo.co",
+    whatsapp: "WhatsApp",
+    whatsappAria: "Escribir a THEPIOLO por WhatsApp",
+    email: "Correo",
+    emailAria: "Enviar correo a THEPIOLO",
+    connect: "Conectar",
   },
   footer: {
     tagline: "Estudio Web Digital",
     rights: "Todos los derechos reservados.",
+    connect: "Síguenos y contacto",
   },
 };
