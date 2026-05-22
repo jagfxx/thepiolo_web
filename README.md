@@ -74,7 +74,14 @@ Hobby + repo privado: el autor del commit debe ser el dueño de la cuenta Vercel
 Transport Service Medellín — live at [transportservicemedellin.com](https://transportservicemedellin.com).  
 Preview screenshot in `public/projects/tsm-preview.png`.
 
+## SEO & contact
+
+- Site URL: [thepiolo.icu](https://thepiolo.icu) — `sitemap.xml`, `robots.txt`, JSON-LD
+- Contact: [thepiolo.co@gmail.com](mailto:thepiolo.co@gmail.com), [Instagram @thepiolo.co](https://www.instagram.com/thepiolo.co/), [WhatsApp](https://wa.me/573244312649)
+- Favicon: `THEPIOLO-ONLYLOGO-05.svg` (also `src/app/icon.svg`)
+- Config: `src/lib/site.ts`, `src/lib/seo.ts`
+
 ## Customize
 
-- Update contact email in `src/components/Contact.tsx`
-- Adjust copy in `src/lib/i18n/dictionaries/en.ts` and `es.ts`
+- Links and email in `src/lib/site.ts`
+- Copy in `src/lib/i18n/dictionaries/en.ts` and `es.ts`
