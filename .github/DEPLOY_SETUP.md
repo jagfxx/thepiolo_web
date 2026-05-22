@@ -40,7 +40,7 @@ curl http://localhost:3001
 sudo nano /etc/nginx/sites-available/thepiolo-web
 ```
 
-Pega el contenido de `nginx-config-thepiolo.txt` (cambia `TU_DOMINIO.com`).
+Pega el contenido de `nginx-config-thepiolo.txt` (dominio: **thepiolo.icu**).
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/thepiolo-web /etc/nginx/sites-enabled/
@@ -51,7 +51,7 @@ sudo systemctl reload nginx
 SSL (cuando el DNS apunte a la VPS):
 
 ```bash
-sudo certbot --nginx -d TU_DOMINIO.com -d www.TU_DOMINIO.com
+sudo certbot --nginx -d thepiolo.icu -d www.thepiolo.icu
 ```
 
 ## Secrets en GitHub (repo `thepiolo_web`)
@@ -64,11 +64,35 @@ Los secrets son **por repositorio**. Copia los mismos valores que en `TSM-WEB`:
 |--------|-------------|
 | `VPS_HOST` | IP de la VPS |
 | `VPS_USER` | `admin_dany` |
-| `VPS_KEY` | Clave privada SSH (contenido completo) |
+| `VPS_KEY` | Clave **privada** SSH (ver abajo) |
 | `EMAIL_USERNAME` | Gmail para notificaciones (opcional) |
 | `EMAIL_PASS` | Contraseña de aplicación Gmail (opcional) |
 
 Sin `EMAIL_*` el deploy funciona igual; solo fallará el workflow de correo.
+
+### ¿Qué es `VPS_KEY`?
+
+Es la **clave privada SSH** que GitHub Actions usa para entrar a tu VPS por SSH. **No** es la contraseña de root ni de `admin_dany`.
+
+Si configuraste TSM igual que en la guía, suele ser el archivo que creaste en la VPS:
+
+```bash
+cat ~/.ssh/deploy_key
+```
+
+Copia **todo** el bloque, incluyendo:
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+...
+-----END OPENSSH PRIVATE KEY-----
+```
+
+Pégalo en GitHub → **thepiolo_web** → Settings → Secrets → `VPS_KEY`.
+
+La **clave pública** (`deploy_key.pub`) debe estar en `~/.ssh/authorized_keys` del usuario `VPS_USER` en la VPS. Si TSM ya despliega bien, puedes usar **la misma** clave privada en ambos repos (`TSM-WEB` y `thepiolo_web`).
+
+**No** uses la clave privada de tu PC ni la de GitHub; debe ser la del par deploy que autorizaste en la VPS.
 
 ## Workflows incluidos
 
