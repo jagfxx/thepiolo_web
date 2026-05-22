@@ -12,7 +12,7 @@ Premium portfolio website for **THEPIOLO**, a modern digital web studio.
 
 - Background: `#13131E`
 - Accent gradient: `#B440FF` → `#FF71E4` → `#FF2E2E`
-- Logos: `public/THEPIOLO-05.svg` (with background), `public/THEPIOLO-ONLYLOGO-05.svg` (transparent)
+- Assets: `public/THEPIOLO-05.svg` (with background), `public/THEPIOLO-ONLYLOGO-05.svg` (navbar), `public/THEPIOLO-FAVICON-05.svg` (favicon)
 
 ## Development
 
@@ -78,7 +78,7 @@ Preview screenshot in `public/projects/tsm-preview.png`.
 
 - Site URL: [thepiolo.icu](https://thepiolo.icu) — `sitemap.xml`, `robots.txt`, JSON-LD
 - Contact: [thepiolo.co@gmail.com](mailto:thepiolo.co@gmail.com), [Instagram @thepiolo.co](https://www.instagram.com/thepiolo.co/), [WhatsApp](https://wa.me/573244312649)
-- Favicon: `THEPIOLO-ONLYLOGO-05.svg` (also `src/app/icon.svg`)
+- Favicon: `public/THEPIOLO-FAVICON-05.svg` (also `src/app/icon.svg`)
 - Config: `src/lib/site.ts`, `src/lib/seo.ts`
 
 ## Customize

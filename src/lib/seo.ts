@@ -75,8 +75,8 @@ export const siteMetadata: Metadata = {
     },
   },
   icons: {
-    icon: [{ url: "/THEPIOLO-ONLYLOGO-05.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/THEPIOLO-ONLYLOGO-05.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/THEPIOLO-FAVICON-05.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/THEPIOLO-FAVICON-05.svg", type: "image/svg+xml" }],
   },
   manifest: "/manifest.webmanifest",
   other: {
@@ -104,7 +104,7 @@ export function getJsonLd() {
         name: siteConfig.legalName,
         url: SITE_URL,
         image: `${SITE_URL}/THEPIOLO-05.svg`,
-        logo: `${SITE_URL}/THEPIOLO-ONLYLOGO-05.svg`,
+        logo: `${SITE_URL}/THEPIOLO-FAVICON-05.svg`,
         email: siteConfig.email,
         areaServed: {
           "@type": "Country",
