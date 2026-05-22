@@ -30,7 +30,24 @@ npm run build
 npm start
 ```
 
-## Deploy on Vercel
+## Deploy en VPS (recomendado — misma VPS que TSM-WEB)
+
+Deploy automático con **GitHub Actions** + **PM2** + **Nginx**.
+
+- TSM-WEB → puerto **3000** (`tsm-web`)
+- THEPIOLO → puerto **3001** (`thepiolo-web`)
+
+Guía completa: [.github/DEPLOY_SETUP.md](.github/DEPLOY_SETUP.md)
+
+**En GitHub (repo `thepiolo_web`)** copia los mismos secrets que en TSM-WEB:
+
+`VPS_HOST`, `VPS_USER`, `VPS_KEY` — y opcionalmente `EMAIL_USERNAME`, `EMAIL_PASS`.
+
+**En la VPS (una vez):** clonar repo, `npm run build`, `pm2 start ecosystem.config.js`, configurar Nginx (`nginx-config-thepiolo.txt`).
+
+Cada push a `main` despliega solo.
+
+## Deploy on Vercel (opcional)
 
 This project is **Next.js** (not a static `public/` folder).
 
@@ -44,9 +61,7 @@ In Vercel → Project → **Settings → General**:
 | Output Directory | *(empty — do not use `public` or `out`)* |
 | Install Command | `npm install` |
 
-If you see `404: NOT_FOUND`, the Output Directory is usually wrong. Clear it, save, then **Redeploy** from the latest `main` commit.
-
-`vercel.json` in the repo forces the Next.js framework.
+Hobby + repo privado: el autor del commit debe ser el dueño de la cuenta Vercel, o usa la VPS.
 
 ## Languages
 

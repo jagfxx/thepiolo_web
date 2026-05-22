@@ -1,0 +1,67 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: 22
+          timeout: 200m
+          command_timeout: 200m
+          script: |
+            set -e
+
+            echo "🚀 Iniciando despliegue THEPIOLO..."
+
+            if [ -d "/home/admin_dany/thepiolo_web" ]; then
+              PROJECT_DIR="/home/admin_dany/thepiolo_web"
+            elif [ -d "/root/thepiolo_web" ]; then
+              PROJECT_DIR="/root/thepiolo_web"
+            else
+              echo "📥 Clonando repositorio por primera vez..."
+              cd /home/admin_dany 2>/dev/null || cd /root
+              git clone https://github.com/jagfxx/thepiolo_web.git
+              PROJECT_DIR="$(pwd)/thepiolo_web"
+            fi
+
+            echo "📁 Directorio del proyecto: $PROJECT_DIR"
+            cd "$PROJECT_DIR"
+
+            mkdir -p logs
+
+            echo "📥 Actualizando código desde GitHub..."
+            git fetch origin
+            git reset --hard origin/main
+            git pull origin main
+
+            echo "📦 Instalando dependencias..."
+            npm ci --production=false
+
+            echo "🔨 Construyendo la aplicación..."
+            npm run build
+
+            echo "🔄 Reiniciando aplicación con PM2..."
+            if command -v pm2 &> /dev/null; then
+              pm2 restart thepiolo-web || pm2 start ecosystem.config.js
+              pm2 save
+              echo "✅ thepiolo-web reiniciado (puerto 3001)"
+            else
+              echo "⚠️  PM2 no está instalado"
+              exit 1
+            fi
+
+            echo "🎉 Despliegue THEPIOLO completado!"
