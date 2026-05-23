@@ -13,6 +13,8 @@ export const createInvoiceSchema = z.object({
   dueAt: z.coerce.date().optional().nullable(),
   status: invoiceStatusSchema.optional(),
   paymentInstructions: z.string().max(2000).optional(),
+  paymentMethodIds: z.array(z.string().min(1)).optional(),
+  paymentExtraNotes: z.string().max(1000).optional(),
   notes: z.string().max(2000).optional(),
 });
 
@@ -23,6 +25,40 @@ export const updateInvoiceSchema = createInvoiceSchema.partial().extend({
 export const createApiKeySchema = z.object({
   name: z.string().min(2).max(100),
 });
+
+const paymentMethodBaseSchema = z.object({
+  label: z.string().max(100).optional(),
+  holderName: z.string().max(200).optional(),
+  isDefault: z.boolean().optional(),
+});
+
+export const createPaymentMethodSchema = z
+  .discriminatedUnion("type", [
+    paymentMethodBaseSchema.extend({
+      type: z.literal("BANK_ACCOUNT"),
+      bankName: z.string().min(2).max(100),
+      accountType: z.enum(["SAVINGS", "CHECKING"]),
+      accountNumber: z.string().min(4).max(50),
+    }),
+    paymentMethodBaseSchema.extend({
+      type: z.literal("BREB"),
+      brebKey: z.string().min(3).max(100),
+    }),
+  ]);
+
+export const updatePaymentMethodSchema = z.object({
+  type: z.enum(["BANK_ACCOUNT", "BREB"]).optional(),
+  label: z.string().max(100).optional().nullable(),
+  bankName: z.string().min(2).max(100).optional().nullable(),
+  accountType: z.enum(["SAVINGS", "CHECKING"]).optional().nullable(),
+  accountNumber: z.string().min(4).max(50).optional().nullable(),
+  brebKey: z.string().min(3).max(100).optional().nullable(),
+  holderName: z.string().max(200).optional().nullable(),
+  isDefault: z.boolean().optional(),
+});
+
+export type CreatePaymentMethodInput = z.infer<typeof createPaymentMethodSchema>;
+export type UpdatePaymentMethodInput = z.infer<typeof updatePaymentMethodSchema>;
 
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
 export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;

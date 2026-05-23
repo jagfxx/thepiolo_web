@@ -1,5 +1,5 @@
 import type { Invoice, InvoiceStatus, Prisma } from "@prisma/client";
-import { billingIssuer } from "@/lib/billing/issuer";
+import { resolveInvoicePaymentInstructions } from "@/lib/billing/payment-methods";
 import type { CreateInvoiceInput, UpdateInvoiceInput } from "@/lib/billing/validators";
 import { prisma } from "@/lib/db";
 
@@ -68,6 +68,12 @@ export async function createInvoice(
   const issuedAt = input.issuedAt ?? new Date();
   const number = await nextInvoiceNumber(issuedAt);
 
+  const paymentInstructions = await resolveInvoicePaymentInstructions(userId, {
+    paymentMethodIds: input.paymentMethodIds,
+    paymentInstructions: input.paymentInstructions,
+    paymentExtraNotes: input.paymentExtraNotes,
+  });
+
   const invoice = await prisma.invoice.create({
     data: {
       number,
@@ -80,8 +86,7 @@ export async function createInvoice(
       amount: input.amount,
       currency: input.currency ?? "COP",
       status: input.status ?? "ISSUED",
-      paymentInstructions:
-        input.paymentInstructions?.trim() || billingIssuer.defaultPaymentInstructions,
+      paymentInstructions,
       notes: input.notes || null,
       createdById: userId,
     },

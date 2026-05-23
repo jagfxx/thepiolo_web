@@ -1,17 +1,50 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { billingIssuer } from "@/lib/billing/issuer";
+import {
+  formatPaymentInstructions,
+  paymentMethodSummary,
+  type PaymentMethodDto,
+} from "@/lib/billing/payment-methods";
 
 type InvoiceFormProps = {
-  mode?: "create";
+  paymentMethods: PaymentMethodDto[];
 };
 
-export function InvoiceForm({ mode = "create" }: InvoiceFormProps) {
+export function InvoiceForm({ paymentMethods }: InvoiceFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const defaultSelectedIds = useMemo(() => {
+    const defaults = paymentMethods.filter((m) => m.isDefault).map((m) => m.id);
+    if (defaults.length > 0) return defaults;
+    return paymentMethods.map((m) => m.id);
+  }, [paymentMethods]);
+
+  const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelectedIds);
+
+  const selectedMethods = useMemo(
+    () =>
+      selectedIds
+        .map((id) => paymentMethods.find((m) => m.id === id))
+        .filter((m): m is PaymentMethodDto => Boolean(m)),
+    [paymentMethods, selectedIds],
+  );
+
+  const paymentPreview = useMemo(() => {
+    if (selectedMethods.length === 0) return billingIssuer.defaultPaymentInstructions;
+    return formatPaymentInstructions(selectedMethods);
+  }, [selectedMethods]);
+
+  function toggleMethod(id: string) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,17 +52,31 @@ export function InvoiceForm({ mode = "create" }: InvoiceFormProps) {
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
-    const payload = {
+    const payload: Record<string, unknown> = {
       clientName: form.get("clientName"),
       clientId: form.get("clientId") || undefined,
       clientEmail: form.get("clientEmail") || undefined,
       concept: form.get("concept"),
       amount: form.get("amount"),
       dueAt: form.get("dueAt") || undefined,
-      paymentInstructions: form.get("paymentInstructions") || undefined,
       notes: form.get("notes") || undefined,
       status: form.get("status") || "ISSUED",
     };
+
+    if (paymentMethods.length > 0) {
+      if (selectedIds.length === 0) {
+        setError("Selecciona al menos un método de pago");
+        setLoading(false);
+        return;
+      }
+      payload.paymentMethodIds = selectedIds;
+      const extra = form.get("paymentExtraNotes");
+      if (extra && String(extra).trim()) {
+        payload.paymentExtraNotes = String(extra).trim();
+      }
+    } else {
+      payload.paymentInstructions = form.get("paymentInstructions") || undefined;
+    }
 
     try {
       const res = await fetch("/api/v1/invoices", {
@@ -50,8 +97,6 @@ export function InvoiceForm({ mode = "create" }: InvoiceFormProps) {
       setLoading(false);
     }
   }
-
-  if (mode !== "create") return null;
 
   return (
     <form
@@ -133,15 +178,77 @@ export function InvoiceForm({ mode = "create" }: InvoiceFormProps) {
         </label>
       </div>
 
-      <label className="block">
-        <span className="mb-1.5 block text-xs font-medium text-muted">Instrucciones de pago</span>
-        <textarea
-          name="paymentInstructions"
-          rows={3}
-          defaultValue={billingIssuer.defaultPaymentInstructions}
-          className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-        />
-      </label>
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-xs font-medium text-muted">Métodos de pago en el PDF</span>
+          <Link
+            href="/admin/payment-methods"
+            className="text-xs text-gradient hover:underline"
+          >
+            Configurar métodos
+          </Link>
+        </div>
+
+        {paymentMethods.length > 0 ? (
+          <>
+            <ul className="space-y-2 rounded-xl border border-border bg-surface p-3">
+              {paymentMethods.map((method) => (
+                <li key={method.id}>
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 hover:bg-surface-elevated">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(method.id)}
+                      onChange={() => toggleMethod(method.id)}
+                      className="mt-1 rounded border-border"
+                    />
+                    <span className="text-sm text-foreground">
+                      {paymentMethodSummary(method)}
+                      {method.isDefault ? (
+                        <span className="ml-2 text-xs text-muted">(predeterminado)</span>
+                      ) : null}
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+            <pre className="whitespace-pre-wrap rounded-xl border border-border bg-surface-elevated/50 p-4 font-sans text-xs text-foreground-subtle">
+              {paymentPreview}
+            </pre>
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-muted">
+                Notas adicionales de pago (opcional)
+              </span>
+              <textarea
+                name="paymentExtraNotes"
+                rows={2}
+                className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
+                placeholder="Ej: Enviar comprobante por WhatsApp"
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <p className="rounded-xl border border-border bg-surface p-4 text-sm text-muted">
+              No tienes métodos de pago guardados.{" "}
+              <Link href="/admin/payment-methods" className="text-gradient hover:underline">
+                Configúralos aquí
+              </Link>{" "}
+              para no escribir los datos cada vez.
+            </p>
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-medium text-muted">
+                Instrucciones de pago
+              </span>
+              <textarea
+                name="paymentInstructions"
+                rows={3}
+                defaultValue={billingIssuer.defaultPaymentInstructions}
+                className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
+              />
+            </label>
+          </>
+        )}
+      </div>
 
       <label className="block">
         <span className="mb-1.5 block text-xs font-medium text-muted">Notas</span>
@@ -153,11 +260,11 @@ export function InvoiceForm({ mode = "create" }: InvoiceFormProps) {
         />
       </label>
 
-      {error && (
+      {error ? (
         <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
           {error}
         </p>
-      )}
+      ) : null}
 
       <button
         type="submit"

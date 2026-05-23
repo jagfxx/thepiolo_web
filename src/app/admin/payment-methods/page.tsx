@@ -1,20 +1,20 @@
 import { AdminShell } from "@/components/admin/AdminShell";
-import { InvoiceForm } from "@/components/admin/InvoiceForm";
+import { PaymentMethodsManager } from "@/components/admin/PaymentMethodsManager";
 import { auth } from "@/lib/auth";
 import { listPaymentMethods } from "@/lib/billing/payment-methods";
 import { redirect } from "next/navigation";
 
-export default async function NewInvoicePage() {
+export default async function PaymentMethodsPage() {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/admin/login");
   }
 
-  const paymentMethods = await listPaymentMethods(session.user.id);
+  const methods = await listPaymentMethods(session.user.id);
 
   return (
-    <AdminShell title="Nueva cuenta de cobro">
-      <InvoiceForm paymentMethods={paymentMethods} />
+    <AdminShell title="Métodos de pago">
+      <PaymentMethodsManager initialMethods={methods} />
     </AdminShell>
   );
 }

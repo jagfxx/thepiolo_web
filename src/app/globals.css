@@ -55,6 +55,10 @@
     background: var(--gradient-accent);
   }
 
+  .bg-gradient-accent-soft {
+    background: var(--gradient-accent-soft);
+  }
+
   .border-gradient {
     position: relative;
     background: var(--color-surface);

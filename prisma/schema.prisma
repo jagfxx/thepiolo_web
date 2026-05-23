@@ -14,6 +14,16 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum PaymentMethodType {
+  BANK_ACCOUNT
+  BREB
+}
+
+enum BankAccountType {
+  SAVINGS
+  CHECKING
+}
+
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -21,8 +31,9 @@ model User {
   name         String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
-  invoices     Invoice[]
-  apiKeys      ApiKey[]
+  invoices        Invoice[]
+  apiKeys         ApiKey[]
+  paymentMethods  PaymentMethod[]
 }
 
 model ApiKey {
@@ -67,4 +78,23 @@ model Invoice {
 model InvoiceCounter {
   year    Int @id
   lastSeq Int @default(0)
+}
+
+model PaymentMethod {
+  id            String             @id @default(cuid())
+  userId        String
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          PaymentMethodType
+  label         String?
+  bankName      String?
+  accountType   BankAccountType?
+  accountNumber String?
+  brebKey       String?
+  holderName    String?
+  isDefault     Boolean            @default(false)
+  sortOrder     Int                @default(0)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([userId])
 }
