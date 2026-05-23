@@ -1,44 +1,20 @@
 "use client";
 
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useActionState } from "react";
+import { loginAction, type LoginState } from "@/app/admin/login/actions";
 
-export function LoginForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/admin";
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+const initialState: LoginState = {};
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    const form = new FormData(e.currentTarget);
-    const result = await signIn("credentials", {
-      email: form.get("email"),
-      password: form.get("password"),
-      redirect: false,
-    });
-
-    setLoading(false);
-
-    if (result?.error) {
-      setError("Credenciales incorrectas");
-      return;
-    }
-
-    router.push(callbackUrl);
-    router.refresh();
-  }
+export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
+  const [state, formAction, pending] = useActionState(loginAction, initialState);
 
   return (
     <form
-      onSubmit={handleSubmit}
+      action={formAction}
       className="w-full max-w-md space-y-5 rounded-3xl border border-border glass p-8"
     >
+      <input type="hidden" name="callbackUrl" value={callbackUrl} />
+
       <div className="text-center">
         <h1 className="font-display text-2xl font-semibold text-gradient">THEPIOLO</h1>
         <p className="mt-2 text-sm text-muted">Panel de cuentas de cobro</p>
@@ -66,18 +42,18 @@ export function LoginForm() {
         />
       </label>
 
-      {error && (
+      {state.error && (
         <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
-          {error}
+          {state.error}
         </p>
       )}
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={pending}
         className="w-full rounded-full bg-gradient-accent py-3 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-60"
       >
-        {loading ? "Entrando…" : "Iniciar sesión"}
+        {pending ? "Entrando…" : "Iniciar sesión"}
       </button>
     </form>
   );

@@ -1,12 +1,16 @@
-import { Suspense } from "react";
 import { LoginForm } from "@/components/admin/LoginForm";
 
-export default function AdminLoginPage() {
+type Props = {
+  searchParams: Promise<{ callbackUrl?: string }>;
+};
+
+export default async function AdminLoginPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const callbackUrl = params.callbackUrl ?? "/admin";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-5 py-16">
-      <Suspense fallback={<div className="text-muted">Cargando…</div>}>
-        <LoginForm />
-      </Suspense>
+      <LoginForm callbackUrl={callbackUrl} />
     </div>
   );
 }
