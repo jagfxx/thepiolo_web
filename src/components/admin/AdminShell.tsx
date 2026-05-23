@@ -22,7 +22,7 @@ export async function AdminShell({
       <header className="border-b border-border glass">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <div className="flex flex-col gap-1">
-            <BrandLogo variant="full" size="sm" href="/admin" priority />
+            <BrandLogo variant="full" size="sm" href="/admin" subtitle="Admin" priority />
             <p className="text-xs text-muted">{session?.user?.email}</p>
           </div>
           <nav className="flex flex-wrap items-center gap-2 sm:gap-4">

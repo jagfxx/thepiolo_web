@@ -3,7 +3,7 @@ export const brand = {
   background: "#13131E",
   surface: "#1A1A28",
   surfaceElevated: "#222233",
-  border: "rgba(255,255,255,0.12)",
+  border: "#3A3A52",
   muted: "#8B8B9E",
   foreground: "#F4F4F8",
   foregroundSubtle: "#C8C8D4",

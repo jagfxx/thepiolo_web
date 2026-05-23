@@ -15,7 +15,7 @@ export default async function AdminDashboardPage() {
   return (
     <AdminShell title="Cuentas de cobro">
       <div className="mb-8 flex justify-center rounded-2xl border border-border/60 bg-surface/40 px-6 py-6">
-        <BrandLogo variant="full" size="lg" />
+        <BrandLogo variant="full" size="lg" subtitle="Cuentas de cobro" />
       </div>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
