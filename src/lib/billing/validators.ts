@@ -59,4 +59,7 @@ export type CreatePaymentMethodInput = z.infer<typeof createPaymentMethodSchema>
 export type UpdatePaymentMethodInput = z.infer<typeof updatePaymentMethodSchema>;
 
 export type CreateInvoiceInput = z.infer<typeof createInvoiceSchema>;
-export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema>;
+export type UpdateInvoiceInput = z.infer<typeof updateInvoiceSchema> & {
+  paymentMethodIds?: string[];
+  paymentExtraNotes?: string;
+};

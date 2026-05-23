@@ -42,7 +42,7 @@ export async function PATCH(request: Request, { params }: Params) {
     );
   }
 
-  const invoice = await updateInvoice(id, parsed.data);
+  const invoice = await updateInvoice(id, parsed.data, authResult.userId);
   if (!invoice) {
     return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
   }

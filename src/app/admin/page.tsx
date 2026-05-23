@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/admin/BrandLogo";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { formatCop, serializeInvoice } from "@/lib/billing/invoices";
+import { statusLabels } from "@/lib/billing/brand";
 import { prisma } from "@/lib/db";
 
 export default async function AdminDashboardPage() {
@@ -55,7 +56,7 @@ export default async function AdminDashboardPage() {
                     <td className="px-4 py-3">{formatCop(inv.amount, inv.currency)}</td>
                     <td className="px-4 py-3">
                       <span className="rounded-full border border-border px-2 py-0.5 text-xs">
-                        {inv.status}
+                        {statusLabels[inv.status] ?? inv.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-muted">

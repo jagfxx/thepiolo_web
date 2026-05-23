@@ -1,7 +1,7 @@
 import { siteConfig } from "@/lib/site";
 
 export const billingIssuer = {
-  name: siteConfig.legalName,
+  name: "THEPIOLO Web Studio",
   brand: siteConfig.name,
   email: siteConfig.email,
   phone: siteConfig.whatsapp.display,

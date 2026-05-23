@@ -4,27 +4,27 @@ import {
   Text,
   View,
   StyleSheet,
-  Image,
   Svg,
   Defs,
   LinearGradient,
   Stop,
   Rect,
+  Path,
 } from "@react-pdf/renderer";
-import path from "path";
 import { billingIssuer } from "@/lib/billing/issuer";
 import { brand, statusLabels } from "@/lib/billing/brand";
 import type { InvoiceDto } from "@/lib/billing/invoices";
 import { formatCop } from "@/lib/billing/invoices";
 
-const logoMarkPath = path.join(process.cwd(), "public", "THEPIOLO-ONLYLOGO-05.svg");
-
 const PAD = 48;
 const CONTENT_W = 612 - PAD * 2;
 
 const PILL_FONT_SIZE = 10;
-const PILL_PAD_V = 2;
+const PILL_PAD_V = 6;
 const PILL_HEIGHT = PILL_FONT_SIZE + PILL_PAD_V * 2;
+
+const LOGO_PATH =
+  "M743.71,401.43c3.66-.34,7.36-.51,11.12-.51m-70.52-10.56q-35.12,0-70.21,0c-7.41,0-14.79,0-22.2,0A123.3,123.3,0,0,0,500,445.27a123.27,123.27,0,0,0-91.9-54.91c-7.41,0-14.79,0-22.2,0q-35.08,0-70.21,0t-70.51.12a42.91,42.91,0,0,0,2.09,11.16,42.06,42.06,0,0,0,10.82,17.46A43.14,43.14,0,0,0,286.82,431H397a82.32,82.32,0,1,1-72.85,44c.26-.44.5-.87.72-1.31,0-.05,0-.12.08-.17a20.62,20.62,0,0,0-36-20c-.17.31-.34.6-.5.92l-.66,1.23A123.48,123.48,0,0,0,471.11,612.06l4.24,6L492,641.74a9.62,9.62,0,0,0,15.5,0l16.66-23.66,4.4-6.27A123.48,123.48,0,0,0,712.23,455.7l-.66-1.23c-.17-.32-.34-.61-.51-.92a20.61,20.61,0,0,0-36,20c0,.05.05.12.08.17.21.44.46.87.72,1.31A82.32,82.32,0,1,1,603,431H713.17a43.14,43.14,0,0,0,28.74-11.91,42.06,42.06,0,0,0,10.82-17.46,42.73,42.73,0,0,0,2.08-11.16Q719.55,390.41,684.31,390.36ZM393.74,479.18a34,34,0,1,0,34,34A34,34,0,0,0,393.74,479.18Zm207.87,0a34,34,0,1,0,34,34A34,34,0,0,0,601.61,479.18Z";
 
 const styles = StyleSheet.create({
   page: {
@@ -44,19 +44,6 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  logoMark: {
-    width: 32,
-    height: 32,
-    objectFit: "contain",
-  },
-  brandSubtitle: {
-    fontFamily: "Montserrat",
-    fontSize: 7,
-    color: brand.muted,
-    marginTop: 3,
-    letterSpacing: 1.2,
-    textTransform: "uppercase",
   },
   metaRow: {
     flexDirection: "row",
@@ -95,17 +82,18 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 12,
+    alignItems: "flex-start",
+    paddingVertical: 10,
     paddingHorizontal: 4,
-    minHeight: 32,
+    marginTop: 6,
+    marginBottom: 4,
   },
   conceptCell: {
     width: "65%",
     fontFamily: "Montserrat",
     fontWeight: 400,
     fontSize: 10,
-    color: brand.foregroundSubtle,
+    color: brand.foreground,
     lineHeight: 1.5,
     paddingRight: 12,
   },
@@ -120,7 +108,7 @@ const styles = StyleSheet.create({
   totalWrap: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    marginTop: 12,
+    marginTop: 8,
     marginBottom: 16,
   },
   footer: {
@@ -196,10 +184,11 @@ function GradientBar({
   height: number;
   gradId: string;
 }) {
+  const radius = Math.max(height / 2, 4);
   return (
     <Svg width={width} height={height}>
       <GradientDefs gradId={gradId} />
-      <Rect x={0} y={0} width={width} height={height} rx={height / 2} fill={`url(#${gradId})`} />
+      <Rect x={0} y={0} width={width} height={height} rx={radius} fill={`url(#${gradId})`} />
     </Svg>
   );
 }
@@ -212,7 +201,6 @@ function GradientRule({ gradId }: { gradId: string }) {
   );
 }
 
-/** Título Montserrat regular con degradado */
 function GradientTitle({ gradId }: { gradId: string }) {
   return (
     <View style={{ marginBottom: 20 }}>
@@ -235,19 +223,20 @@ function GradientTitle({ gradId }: { gradId: string }) {
   );
 }
 
-/** Logo como en admin: ícono + THEPIOLO en Syne con degradado */
-function PdfBrandLogo({
-  gradId,
-  subtitle,
-}: {
-  gradId: string;
-  subtitle?: string;
-}) {
+function PdfLogoMark({ size = 32, gradId }: { size?: number; gradId: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 1000 1000">
+      <GradientDefs gradId={gradId} />
+      <Path d={LOGO_PATH} fill={`url(#${gradId})`} />
+    </Svg>
+  );
+}
+
+function PdfBrandLogo({ gradId }: { gradId: string }) {
   return (
     <View style={styles.brandRow}>
-      {/* eslint-disable-next-line jsx-a11y/alt-text -- PDF */}
-      <Image src={logoMarkPath} style={styles.logoMark} />
-      <View>
+      <PdfLogoMark size={32} gradId={`${gradId}-mark`} />
+      <View style={{ marginLeft: 10 }}>
         <Svg width={120} height={18} viewBox="0 0 120 18">
           <GradientDefs gradId={gradId} />
           <Text
@@ -263,7 +252,6 @@ function PdfBrandLogo({
             THEPIOLO
           </Text>
         </Svg>
-        {subtitle ? <Text style={styles.brandSubtitle}>{subtitle}</Text> : null}
       </View>
     </View>
   );
@@ -271,29 +259,21 @@ function PdfBrandLogo({
 
 function GradientPill({
   width,
-  height,
   gradId,
   children,
 }: {
   width: number;
-  height: number;
   gradId: string;
   children: React.ReactNode;
 }) {
   return (
-    <View
-      style={{
-        width,
-        height,
-        borderRadius: height / 2,
-        overflow: "hidden",
-        position: "relative",
-      }}
-    >
-      <View style={{ position: "absolute", top: 0, left: 0 }}>
-        <GradientBar width={width} height={height} gradId={gradId} />
+    <View style={{ width, marginBottom: 4 }}>
+      <View style={{ position: "relative", height: PILL_HEIGHT }}>
+        <View style={{ position: "absolute", top: 0, left: 0 }}>
+          <GradientBar width={width} height={PILL_HEIGHT} gradId={gradId} />
+        </View>
+        <View style={[styles.pillRow, { height: PILL_HEIGHT, width }]}>{children}</View>
       </View>
-      <View style={[styles.pillRow, { height, width }]}>{children}</View>
     </View>
   );
 }
@@ -302,14 +282,13 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
   const amountFormatted = formatCop(invoice.amount, invoice.currency);
   const statusLabel = statusLabels[invoice.status] ?? invoice.status;
   const uid = invoice.id.slice(-6);
-
-  const totalW = 200;
+  const totalW = 220;
 
   return (
     <Document>
       <Page size="LETTER" style={styles.page}>
         <View style={styles.topRow}>
-          <PdfBrandLogo gradId={`brand-h-${uid}`} subtitle="Graphic Design" />
+          <PdfBrandLogo gradId={`brand-h-${uid}`} />
         </View>
 
         <GradientTitle gradId={`title-${uid}`} />
@@ -321,15 +300,9 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
               {invoice.number}
             </Text>
             <Text style={styles.metaText}>
-              <Text style={styles.metaBold}>Fecha: </Text>
+              <Text style={styles.metaBold}>Fecha de emisión: </Text>
               {formatDateShort(invoice.issuedAt)}
             </Text>
-            {invoice.dueAt ? (
-              <Text style={styles.metaText}>
-                <Text style={styles.metaBold}>Vence: </Text>
-                {formatDateShort(invoice.dueAt)}
-              </Text>
-            ) : null}
             <Text style={styles.statusBadge}>Estado: {statusLabel}</Text>
           </View>
           <View style={styles.metaCol}>
@@ -352,7 +325,7 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
           </View>
         </View>
 
-        <GradientPill width={CONTENT_W} height={PILL_HEIGHT} gradId={`hdr-${uid}`}>
+        <GradientPill width={CONTENT_W} gradId={`hdr-${uid}`}>
           <Text style={styles.pillText}>Concepto</Text>
           <Text style={styles.pillText}>Valor</Text>
         </GradientPill>
@@ -365,7 +338,7 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
         <GradientRule gradId={`rule1-${uid}`} />
 
         <View style={styles.totalWrap}>
-          <GradientPill width={totalW} height={PILL_HEIGHT} gradId={`tot-${uid}`}>
+          <GradientPill width={totalW} gradId={`tot-${uid}`}>
             <Text style={styles.pillText}>Total</Text>
             <Text style={styles.pillText}>{amountFormatted}</Text>
           </GradientPill>

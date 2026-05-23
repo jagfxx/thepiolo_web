@@ -78,7 +78,7 @@ export async function createInvoice(
     data: {
       number,
       issuedAt,
-      dueAt: input.dueAt ?? null,
+      dueAt: null,
       clientName: input.clientName,
       clientId: input.clientId || null,
       clientEmail: input.clientEmail || null,
@@ -124,24 +124,45 @@ export async function getInvoiceById(id: string): Promise<InvoiceDto | null> {
 export async function updateInvoice(
   id: string,
   input: UpdateInvoiceInput,
+  userId?: string,
 ): Promise<InvoiceDto | null> {
-  try {
-    const invoice = await prisma.invoice.update({
-      where: { id },
-      data: {
-        clientName: input.clientName,
-        clientId: input.clientId === "" ? null : input.clientId,
-        clientEmail: input.clientEmail === "" ? null : input.clientEmail,
-        concept: input.concept,
-        amount: input.amount,
-        currency: input.currency,
-        issuedAt: input.issuedAt,
-        dueAt: input.dueAt,
-        status: input.status,
+  const existing = await prisma.invoice.findUnique({ where: { id } });
+  if (!existing) return null;
+
+  const isDraft = existing.status === "DRAFT";
+  const data: Prisma.InvoiceUpdateInput = {};
+
+  if (input.status !== undefined) {
+    data.status = input.status;
+  }
+
+  if (isDraft) {
+    if (input.clientName !== undefined) data.clientName = input.clientName;
+    if (input.clientId !== undefined) {
+      data.clientId = input.clientId === "" ? null : input.clientId;
+    }
+    if (input.clientEmail !== undefined) {
+      data.clientEmail = input.clientEmail === "" ? null : input.clientEmail;
+    }
+    if (input.concept !== undefined) data.concept = input.concept;
+    if (input.amount !== undefined) data.amount = input.amount;
+    if (input.currency !== undefined) data.currency = input.currency;
+    if (input.issuedAt !== undefined) data.issuedAt = input.issuedAt;
+    if (input.notes !== undefined) data.notes = input.notes === "" ? null : input.notes;
+
+    if (userId && (input.paymentMethodIds?.length || input.paymentInstructions !== undefined)) {
+      data.paymentInstructions = await resolveInvoicePaymentInstructions(userId, {
+        paymentMethodIds: input.paymentMethodIds,
         paymentInstructions: input.paymentInstructions,
-        notes: input.notes === "" ? null : input.notes,
-      },
-    });
+        paymentExtraNotes: input.paymentExtraNotes,
+      });
+    } else if (input.paymentInstructions !== undefined) {
+      data.paymentInstructions = input.paymentInstructions;
+    }
+  }
+
+  try {
+    const invoice = await prisma.invoice.update({ where: { id }, data });
     return serializeInvoice(invoice);
   } catch {
     return null;
