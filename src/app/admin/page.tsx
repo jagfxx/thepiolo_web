@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/admin/BrandLogo";
 import { AdminShell } from "@/components/admin/AdminShell";
 import { formatCop, serializeInvoice } from "@/lib/billing/invoices";
 import { prisma } from "@/lib/db";
@@ -13,6 +14,10 @@ export default async function AdminDashboardPage() {
 
   return (
     <AdminShell title="Cuentas de cobro">
+      <div className="mb-8 flex justify-center rounded-2xl border border-border/60 bg-surface/40 px-6 py-6">
+        <BrandLogo variant="full" size="lg" />
+      </div>
+
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted">{invoices.length} registros recientes</p>
         <Link

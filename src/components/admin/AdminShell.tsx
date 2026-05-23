@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/admin/BrandLogo";
 import { auth, signOut } from "@/lib/auth";
 
 const nav = [
@@ -20,11 +21,9 @@ export async function AdminShell({
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border glass">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <div>
-            <Link href="/admin" className="font-display text-lg font-semibold text-gradient">
-              THEPIOLO Admin
-            </Link>
-            <p className="mt-0.5 text-xs text-muted">{session?.user?.email}</p>
+          <div className="flex flex-col gap-1">
+            <BrandLogo variant="full" size="sm" href="/admin" priority />
+            <p className="text-xs text-muted">{session?.user?.email}</p>
           </div>
           <nav className="flex flex-wrap items-center gap-2 sm:gap-4">
             {nav.map((item) => (

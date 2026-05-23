@@ -17,7 +17,8 @@ import { brand, statusLabels } from "@/lib/billing/brand";
 import type { InvoiceDto } from "@/lib/billing/invoices";
 import { formatCop } from "@/lib/billing/invoices";
 
-const logoPath = path.join(process.cwd(), "public", "THEPIOLO-05.svg");
+const logoFullPath = path.join(process.cwd(), "public", "THEPIOLO-05.svg");
+const logoMarkPath = path.join(process.cwd(), "public", "THEPIOLO-ONLYLOGO-05.svg");
 const CONTENT_W = 515;
 
 const styles = StyleSheet.create({
@@ -35,17 +36,27 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 24,
   },
-  logo: {
-    width: 200,
-    height: 48,
+  logoFull: {
+    width: 220,
+    height: 52,
     objectFit: "contain",
     objectPosition: "left",
   },
-  brandFallback: {
-    fontSize: 18,
-    fontFamily: "Helvetica-Bold",
-    color: brand.accentMid,
-    letterSpacing: 1,
+  logoMark: {
+    width: 36,
+    height: 36,
+    objectFit: "contain",
+    marginBottom: 8,
+  },
+  headerLogos: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  logoMarkHeader: {
+    width: 40,
+    height: 40,
+    objectFit: "contain",
+    marginLeft: 12,
   },
   decorDots: {
     flexDirection: "row",
@@ -161,6 +172,10 @@ const styles = StyleSheet.create({
   footerColRight: {
     width: "38%",
     alignItems: "flex-end",
+  },
+  footerLogoWrap: {
+    alignItems: "flex-end",
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 10,
@@ -292,9 +307,11 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.topRow}>
-          <View>
+          <View style={styles.headerLogos}>
             {/* eslint-disable-next-line jsx-a11y/alt-text -- PDF Image */}
-            <Image src={logoPath} style={styles.logo} />
+            <Image src={logoFullPath} style={styles.logoFull} />
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- PDF Image */}
+            <Image src={logoMarkPath} style={styles.logoMarkHeader} />
           </View>
           <DecorGrid />
         </View>
@@ -366,6 +383,12 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
             ) : null}
           </View>
           <View style={styles.footerColRight}>
+            <View style={styles.footerLogoWrap}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text -- PDF Image */}
+              <Image src={logoMarkPath} style={styles.logoMark} />
+              {/* eslint-disable-next-line jsx-a11y/alt-text -- PDF Image */}
+              <Image src={logoFullPath} style={{ width: 120, height: 28, objectFit: "contain" }} />
+            </View>
             <Text style={[styles.sectionTitle, { textAlign: "right" }]}>
               {billingIssuer.name}
             </Text>

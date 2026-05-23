@@ -25,10 +25,7 @@ export function LoginForm({
     >
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
 
-      <div className="text-center">
-        <h1 className="font-display text-2xl font-semibold text-gradient">THEPIOLO</h1>
-        <p className="mt-2 text-sm text-muted">Panel de cuentas de cobro</p>
-      </div>
+      <p className="text-center text-sm text-muted">Panel de cuentas de cobro</p>
 
       <label className="block">
         <span className="mb-1.5 block text-xs font-medium text-muted">Correo</span>
