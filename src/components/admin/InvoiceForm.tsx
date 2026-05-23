@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { billingIssuer } from "@/lib/billing/issuer";
 import {
   formatPaymentInstructions,
+  partitionPaymentMethods,
   paymentMethodSummary,
   type PaymentMethodDto,
 } from "@/lib/billing/payment-methods";
@@ -40,9 +41,44 @@ export function InvoiceForm({ paymentMethods }: InvoiceFormProps) {
     return formatPaymentInstructions(selectedMethods);
   }, [selectedMethods]);
 
+  const { bankAccounts, brebKeys } = useMemo(
+    () => partitionPaymentMethods(paymentMethods),
+    [paymentMethods],
+  );
+
   function toggleMethod(id: string) {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  }
+
+  function renderMethodGroup(title: string, methods: PaymentMethodDto[]) {
+    if (methods.length === 0) return null;
+
+    return (
+      <div className="space-y-2">
+        <p className="px-1 text-xs font-medium uppercase tracking-wide text-muted">{title}</p>
+        <ul className="space-y-1">
+          {methods.map((method) => (
+            <li key={method.id}>
+              <label className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 hover:bg-surface-elevated">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(method.id)}
+                  onChange={() => toggleMethod(method.id)}
+                  className="mt-1 rounded border-border"
+                />
+                <span className="text-sm text-foreground">
+                  {paymentMethodSummary(method)}
+                  {method.isDefault ? (
+                    <span className="ml-2 text-xs text-muted">(predeterminado)</span>
+                  ) : null}
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 
@@ -191,26 +227,13 @@ export function InvoiceForm({ paymentMethods }: InvoiceFormProps) {
 
         {paymentMethods.length > 0 ? (
           <>
-            <ul className="space-y-2 rounded-xl border border-border bg-surface p-3">
-              {paymentMethods.map((method) => (
-                <li key={method.id}>
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg px-2 py-2 hover:bg-surface-elevated">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(method.id)}
-                      onChange={() => toggleMethod(method.id)}
-                      className="mt-1 rounded border-border"
-                    />
-                    <span className="text-sm text-foreground">
-                      {paymentMethodSummary(method)}
-                      {method.isDefault ? (
-                        <span className="ml-2 text-xs text-muted">(predeterminado)</span>
-                      ) : null}
-                    </span>
-                  </label>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-4 rounded-xl border border-border bg-surface p-3">
+              {renderMethodGroup("Cuenta bancaria", bankAccounts)}
+              {bankAccounts.length > 0 && brebKeys.length > 0 ? (
+                <div className="border-t border-border pt-3" />
+              ) : null}
+              {renderMethodGroup("Llave Bre-B", brebKeys)}
+            </div>
             <pre className="whitespace-pre-wrap rounded-xl border border-border bg-surface-elevated/50 p-4 font-sans text-xs text-foreground-subtle">
               {paymentPreview}
             </pre>

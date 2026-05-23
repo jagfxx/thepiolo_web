@@ -26,6 +26,15 @@ const accountTypeLabels: Record<BankAccountType, string> = {
   CHECKING: "Corriente",
 };
 
+export { accountTypeLabels };
+
+export function partitionPaymentMethods(methods: PaymentMethodDto[]) {
+  return {
+    bankAccounts: methods.filter((m) => m.type === "BANK_ACCOUNT"),
+    brebKeys: methods.filter((m) => m.type === "BREB"),
+  };
+}
+
 export function serializePaymentMethod(method: PaymentMethod): PaymentMethodDto {
   return {
     id: method.id,
@@ -44,23 +53,17 @@ export function serializePaymentMethod(method: PaymentMethod): PaymentMethodDto 
 }
 
 export function formatPaymentMethod(method: PaymentMethodDto): string {
-  const lines: string[] = [];
-
   if (method.type === "BREB") {
-    if (method.label) lines.push(method.label);
-    if (method.brebKey) lines.push(`Llave Bre-B: ${method.brebKey}`);
+    const lines: string[] = [];
+    if (method.brebKey) lines.push(method.brebKey);
     if (method.holderName) lines.push(`Titular: ${method.holderName}`);
     return lines.join("\n");
   }
 
-  const title = method.label || method.bankName || "Cuenta bancaria";
-  lines.push(title);
-  if (method.bankName && method.label) lines.push(`Banco: ${method.bankName}`);
-  else if (method.bankName && !method.label) lines.push(`Banco: ${method.bankName}`);
-  if (method.accountType) {
-    lines.push(`Tipo: Cuenta de ${accountTypeLabels[method.accountType].toLowerCase()}`);
-  }
-  if (method.accountNumber) lines.push(`Número: ${method.accountNumber}`);
+  const lines: string[] = [];
+  if (method.bankName) lines.push(method.bankName);
+  if (method.accountType) lines.push(accountTypeLabels[method.accountType]);
+  if (method.accountNumber) lines.push(method.accountNumber);
   if (method.holderName) lines.push(`Titular: ${method.holderName}`);
 
   return lines.join("\n");
@@ -68,15 +71,28 @@ export function formatPaymentMethod(method: PaymentMethodDto): string {
 
 export function formatPaymentInstructions(methods: PaymentMethodDto[]): string {
   if (methods.length === 0) return billingIssuer.defaultPaymentInstructions;
-  return methods.map(formatPaymentMethod).join("\n\n");
+
+  const { bankAccounts, brebKeys } = partitionPaymentMethods(methods);
+  const sections: string[] = [];
+
+  if (bankAccounts.length > 0) {
+    sections.push(
+      ["Cuenta bancaria", ...bankAccounts.map(formatPaymentMethod)].join("\n\n"),
+    );
+  }
+  if (brebKeys.length > 0) {
+    sections.push(["Llave Bre-B", ...brebKeys.map(formatPaymentMethod)].join("\n\n"));
+  }
+
+  return sections.join("\n\n");
 }
 
 export function paymentMethodSummary(method: PaymentMethodDto): string {
   if (method.type === "BREB") {
-    return method.label || method.brebKey || "Llave Bre-B";
+    return method.brebKey || "Llave Bre-B";
   }
-  const parts = [method.bankName, method.accountNumber].filter(Boolean);
-  return method.label || parts.join(" · ") || "Cuenta bancaria";
+  const typeLabel = method.accountType ? accountTypeLabels[method.accountType] : "";
+  return [method.bankName, typeLabel, method.accountNumber].filter(Boolean).join(" · ");
 }
 
 async function clearDefaultPaymentMethods(userId: string, exceptId?: string) {
@@ -125,7 +141,7 @@ export async function createPaymentMethod(
     data: {
       userId,
       type: input.type,
-      label: input.label || null,
+      label: null,
       bankName: input.type === "BANK_ACCOUNT" ? input.bankName || null : null,
       accountType: input.type === "BANK_ACCOUNT" ? input.accountType || null : null,
       accountNumber: input.type === "BANK_ACCOUNT" ? input.accountNumber || null : null,
@@ -157,7 +173,6 @@ export async function updatePaymentMethod(
       where: { id },
       data: {
         type: input.type,
-        label: input.label === "" ? null : input.label,
         bankName:
           nextType === "BANK_ACCOUNT"
             ? (input.bankName ?? existing.bankName)

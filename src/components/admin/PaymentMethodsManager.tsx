@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   formatPaymentMethod,
+  partitionPaymentMethods,
   paymentMethodSummary,
   type PaymentMethodDto,
 } from "@/lib/billing/payment-methods";
 
 type PaymentMethodFormState = {
   type: "BANK_ACCOUNT" | "BREB";
-  label: string;
   bankName: string;
   accountType: "SAVINGS" | "CHECKING";
   accountNumber: string;
@@ -20,7 +20,6 @@ type PaymentMethodFormState = {
 
 const emptyForm = (): PaymentMethodFormState => ({
   type: "BANK_ACCOUNT",
-  label: "",
   bankName: "",
   accountType: "SAVINGS",
   accountNumber: "",
@@ -29,10 +28,53 @@ const emptyForm = (): PaymentMethodFormState => ({
   isDefault: false,
 });
 
-const accountTypeLabels = {
-  SAVINGS: "Ahorros",
-  CHECKING: "Corriente",
-} as const;
+function SavedMethodCard({
+  method,
+  onSetDefault,
+  onRemove,
+}: {
+  method: PaymentMethodDto;
+  onSetDefault: (id: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  return (
+    <li className="rounded-2xl border border-border glass p-5 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium text-foreground">{paymentMethodSummary(method)}</p>
+            {method.isDefault ? (
+              <span className="rounded-full bg-gradient-accent-soft px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground">
+                Predeterminado
+              </span>
+            ) : null}
+          </div>
+          <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-foreground-subtle">
+            {formatPaymentMethod(method)}
+          </pre>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {!method.isDefault ? (
+            <button
+              type="button"
+              onClick={() => onSetDefault(method.id)}
+              className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground-subtle hover:text-foreground"
+            >
+              Predeterminar
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => onRemove(method.id)}
+            className="rounded-full border border-red-500/30 px-3 py-1.5 text-xs text-red-300 hover:border-red-500/50"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </li>
+  );
+}
 
 export function PaymentMethodsManager({
   initialMethods,
@@ -44,6 +86,11 @@ export function PaymentMethodsManager({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { bankAccounts, brebKeys } = useMemo(
+    () => partitionPaymentMethods(methods),
+    [methods],
+  );
+
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -53,7 +100,6 @@ export function PaymentMethodsManager({
       form.type === "BANK_ACCOUNT"
         ? {
             type: "BANK_ACCOUNT" as const,
-            label: form.label || undefined,
             bankName: form.bankName,
             accountType: form.accountType,
             accountNumber: form.accountNumber,
@@ -62,7 +108,6 @@ export function PaymentMethodsManager({
           }
         : {
             type: "BREB" as const,
-            label: form.label || undefined,
             brebKey: form.brebKey,
             holderName: form.holderName || undefined,
             isDefault: form.isDefault,
@@ -112,6 +157,26 @@ export function PaymentMethodsManager({
     setMethods((prev) => prev.filter((item) => item.id !== id));
   }
 
+  function renderSavedGroup(title: string, items: PaymentMethodDto[]) {
+    if (items.length === 0) return null;
+
+    return (
+      <div className="space-y-3">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-muted">{title}</h3>
+        <ul className="space-y-3">
+          {items.map((method) => (
+            <SavedMethodCard
+              key={method.id}
+              method={method}
+              onSetDefault={setDefault}
+              onRemove={remove}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <form
@@ -141,18 +206,6 @@ export function PaymentMethodsManager({
             </button>
           ))}
         </div>
-
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-medium text-muted">
-            Etiqueta (opcional)
-          </span>
-          <input
-            value={form.label}
-            onChange={(e) => setForm((prev) => ({ ...prev, label: e.target.value }))}
-            placeholder="Ej: Bancolombia principal"
-            className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-          />
-        </label>
 
         {form.type === "BANK_ACCOUNT" ? (
           <div className="grid gap-4 sm:grid-cols-2">
@@ -241,7 +294,7 @@ export function PaymentMethodsManager({
         </button>
       </form>
 
-      <section className="space-y-4">
+      <section className="space-y-6">
         <h2 className="font-display text-lg font-semibold">Métodos guardados</h2>
         {methods.length === 0 ? (
           <p className="rounded-2xl border border-border glass p-6 text-sm text-muted">
@@ -249,55 +302,10 @@ export function PaymentMethodsManager({
             tus cuentas de cobro.
           </p>
         ) : (
-          <ul className="space-y-3">
-            {methods.map((method) => (
-              <li
-                key={method.id}
-                className="rounded-2xl border border-border glass p-5 sm:p-6"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-foreground">
-                        {paymentMethodSummary(method)}
-                      </p>
-                      {method.isDefault ? (
-                        <span className="rounded-full bg-gradient-accent-soft px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-foreground">
-                          Predeterminado
-                        </span>
-                      ) : null}
-                      <span className="text-xs text-muted">
-                        {method.type === "BREB"
-                          ? "Bre-B"
-                          : accountTypeLabels[method.accountType ?? "SAVINGS"]}
-                      </span>
-                    </div>
-                    <pre className="mt-3 whitespace-pre-wrap font-sans text-sm text-foreground-subtle">
-                      {formatPaymentMethod(method)}
-                    </pre>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {!method.isDefault ? (
-                      <button
-                        type="button"
-                        onClick={() => setDefault(method.id)}
-                        className="rounded-full border border-border px-3 py-1.5 text-xs text-foreground-subtle hover:text-foreground"
-                      >
-                        Predeterminar
-                      </button>
-                    ) : null}
-                    <button
-                      type="button"
-                      onClick={() => remove(method.id)}
-                      className="rounded-full border border-red-500/30 px-3 py-1.5 text-xs text-red-300 hover:border-red-500/50"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="space-y-8">
+            {renderSavedGroup("Cuenta bancaria", bankAccounts)}
+            {renderSavedGroup("Llave Bre-B", brebKeys)}
+          </div>
         )}
       </section>
     </div>

@@ -27,7 +27,6 @@ export const createApiKeySchema = z.object({
 });
 
 const paymentMethodBaseSchema = z.object({
-  label: z.string().max(100).optional(),
   holderName: z.string().max(200).optional(),
   isDefault: z.boolean().optional(),
 });
@@ -48,7 +47,6 @@ export const createPaymentMethodSchema = z
 
 export const updatePaymentMethodSchema = z.object({
   type: z.enum(["BANK_ACCOUNT", "BREB"]).optional(),
-  label: z.string().max(100).optional().nullable(),
   bankName: z.string().min(2).max(100).optional().nullable(),
   accountType: z.enum(["SAVINGS", "CHECKING"]).optional().nullable(),
   accountNumber: z.string().min(4).max(50).optional().nullable(),
