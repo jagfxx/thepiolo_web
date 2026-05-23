@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  invoices     Invoice[]
+  apiKeys      ApiKey[]
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyHash    String
+  prefix     String
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([keyHash])
+  @@index([userId])
+}
+
+model Invoice {
+  id                  String        @id @default(cuid())
+  number              String        @unique
+  issuedAt            DateTime      @default(now())
+  dueAt               DateTime?
+  clientName          String
+  clientId            String?
+  clientEmail         String?
+  concept             String
+  amount              Decimal       @db.Decimal(14, 2)
+  currency            String        @default("COP")
+  status              InvoiceStatus @default(ISSUED)
+  paymentInstructions String        @default("")
+  notes               String?
+  createdById         String
+  createdBy           User          @relation(fields: [createdById], references: [id])
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([createdById])
+  @@index([status])
+  @@index([issuedAt])
+}
+
+model InvoiceCounter {
+  year    Int @id
+  lastSeq Int @default(0)
+}

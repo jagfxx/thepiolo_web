@@ -83,7 +83,14 @@ Preview screenshot in `public/projects/tsm-preview.png`.
 
 ## Deploy (VPS)
 
-Push to `main` runs `.github/workflows/deploy.yml` (pull, clean build, PM2 `thepiolo-web` on port 3001). See `.github/DEPLOY_SETUP.md`.
+Push to `main` runs `.github/workflows/deploy.yml` (pull, Prisma migrate, build, PM2 `thepiolo-web` on port 3001). See `.github/DEPLOY_SETUP.md`.
+
+## Billing (cuentas de cobro)
+
+- Admin panel: `/admin` (login con usuario creado vía `npm run db:seed`)
+- REST API: `/api/v1/invoices`, `/api/v1/api-keys` (Bearer API key o sesión)
+- PDF: `GET /api/v1/invoices/:id/pdf`
+- Env template: `.env.example`
 
 ## Customize
 

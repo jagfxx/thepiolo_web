@@ -51,6 +51,10 @@ jobs:
             echo "📦 Instalando dependencias..."
             npm ci --production=false
 
+            echo "🗄️  Prisma generate + migraciones..."
+            npx prisma generate
+            npx prisma migrate deploy
+
             echo "🧹 Limpiando build anterior..."
             rm -rf .next
 

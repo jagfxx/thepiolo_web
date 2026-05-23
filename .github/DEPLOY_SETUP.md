@@ -154,3 +154,33 @@ Comprueba que un chunk responda **200** (cambia el hash si cambió el build):
 ```bash
 curl -I "https://thepiolo.icu/_next/static/chunks/webpack-0c08feeaeab5776b.js"
 ```
+
+## Cuentas de cobro (PostgreSQL + Admin + API)
+
+### Una vez en la VPS
+
+1. PostgreSQL con BD `thepiolo_billing` (usuario `thepiolo`).
+2. Archivo `~/thepiolo_web/.env` (copiar de `.env.example`), `chmod 600 .env`.
+3. Tras el primer deploy con Prisma:
+
+```bash
+cd ~/thepiolo_web
+npm run db:seed
+```
+
+4. Entrar a `https://thepiolo.icu/admin` con `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+
+### Deploy automático (cada push a `main`)
+
+El workflow ejecuta: `prisma generate` → `prisma migrate deploy` → `npm run build` → `pm2 restart`.
+
+### API (ejemplo)
+
+```bash
+curl -X POST https://thepiolo.icu/api/v1/invoices \
+  -H "Authorization: Bearer tp_TU_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"clientName":"Cliente SA","concept":"Desarrollo web","amount":2500000}'
+```
+
+Genera API keys en `/admin/api-keys`.
