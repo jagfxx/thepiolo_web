@@ -1,3 +1,4 @@
+import "@/lib/billing/pdf-fonts";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InvoicePdfDocument } from "@/lib/billing/pdf-document";
 import type { InvoiceDto } from "@/lib/billing/invoices";

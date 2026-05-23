@@ -19,6 +19,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@fontsource/montserrat": "^5.2.8",
+    "@fontsource/syne": "^5.2.7",
     "@prisma/client": "^6.19.0",
     "@react-pdf/renderer": "^4.5.1",
     "bcryptjs": "^3.0.3",
