@@ -1,22 +1,19 @@
 "use server";
 
 import { AuthError } from "next-auth";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
 import { signIn } from "@/lib/auth";
 
-export type LoginState = {
-  error?: string;
-};
-
-export async function loginAction(
-  _prev: LoginState,
-  formData: FormData,
-): Promise<LoginState> {
+export async function loginAction(formData: FormData) {
   const email = formData.get("email")?.toString().trim() ?? "";
   const password = formData.get("password")?.toString() ?? "";
   const callbackUrl = formData.get("callbackUrl")?.toString() || "/admin";
 
   if (!email || !password) {
-    return { error: "Correo y contraseña son obligatorios." };
+    redirect(
+      `/admin/login?error=missing&callbackUrl=${encodeURIComponent(callbackUrl)}`,
+    );
   }
 
   try {
@@ -26,16 +23,17 @@ export async function loginAction(
       redirectTo: callbackUrl,
     });
   } catch (error) {
-    if (error instanceof AuthError) {
-      if (error.type === "CredentialsSignin") {
-        return {
-          error:
-            "Credenciales incorrectas. Verifica ADMIN_EMAIL / ADMIN_PASSWORD y ejecuta: npm run db:seed",
-        };
-      }
-    }
-    throw error;
-  }
+    if (isRedirectError(error)) throw error;
 
-  return {};
+    if (error instanceof AuthError) {
+      redirect(
+        `/admin/login?error=credentials&callbackUrl=${encodeURIComponent(callbackUrl)}`,
+      );
+    }
+
+    console.error("[login] unexpected error:", error);
+    redirect(
+      `/admin/login?error=server&callbackUrl=${encodeURIComponent(callbackUrl)}`,
+    );
+  }
 }

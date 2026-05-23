@@ -10,6 +10,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: authSecret,
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 7 },
   pages: { signIn: "/admin/login" },
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
+    },
+  },
   providers: [
     Credentials({
       id: "credentials",

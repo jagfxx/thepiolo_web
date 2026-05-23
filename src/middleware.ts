@@ -4,25 +4,29 @@ import { getToken } from "next-auth/jwt";
 
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 
+async function readSessionToken(request: NextRequest) {
+  if (!authSecret) return null;
+
+  return getToken({
+    req: request,
+    secret: authSecret,
+    secureCookie: request.nextUrl.protocol === "https:",
+  });
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin")) {
     if (pathname === "/admin/login") {
-      const token = await getToken({
-        req: request,
-        secret: authSecret,
-      });
+      const token = await readSessionToken(request);
       if (token) {
         return NextResponse.redirect(new URL("/admin", request.url));
       }
       return NextResponse.next();
     }
 
-    const token = await getToken({
-      req: request,
-      secret: authSecret,
-    });
+    const token = await readSessionToken(request);
     if (!token) {
       const login = new URL("/admin/login", request.url);
       login.searchParams.set("callbackUrl", pathname);
@@ -35,10 +39,7 @@ export async function middleware(request: NextRequest) {
     const hasBearer = request.headers.get("authorization")?.startsWith("Bearer ");
     if (hasBearer) return NextResponse.next();
 
-    const token = await getToken({
-      req: request,
-      secret: authSecret,
-    });
+    const token = await readSessionToken(request);
     if (token) return NextResponse.next();
 
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

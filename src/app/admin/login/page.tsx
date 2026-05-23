@@ -1,7 +1,7 @@
 import { LoginForm } from "@/components/admin/LoginForm";
 
 type Props = {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 };
 
 export default async function AdminLoginPage({ searchParams }: Props) {
@@ -10,7 +10,7 @@ export default async function AdminLoginPage({ searchParams }: Props) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-5 py-16">
-      <LoginForm callbackUrl={callbackUrl} />
+      <LoginForm callbackUrl={callbackUrl} errorCode={params.error} />
     </div>
   );
 }

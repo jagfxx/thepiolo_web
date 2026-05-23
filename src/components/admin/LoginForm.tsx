@@ -1,16 +1,26 @@
 "use client";
 
-import { useActionState } from "react";
-import { loginAction, type LoginState } from "@/app/admin/login/actions";
+import { loginAction } from "@/app/admin/login/actions";
 
-const initialState: LoginState = {};
+const errorMessages: Record<string, string> = {
+  credentials:
+    "Credenciales incorrectas. Verifica email/contraseña y ejecuta: npm run db:seed",
+  missing: "Correo y contraseña son obligatorios.",
+  server: "Error del servidor. Revisa logs de PM2 y variables AUTH_SECRET / DATABASE_URL.",
+};
 
-export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
-  const [state, formAction, pending] = useActionState(loginAction, initialState);
+export function LoginForm({
+  callbackUrl,
+  errorCode,
+}: {
+  callbackUrl: string;
+  errorCode?: string;
+}) {
+  const error = errorCode ? errorMessages[errorCode] ?? "No se pudo iniciar sesión." : null;
 
   return (
     <form
-      action={formAction}
+      action={loginAction}
       className="w-full max-w-md space-y-5 rounded-3xl border border-border glass p-8"
     >
       <input type="hidden" name="callbackUrl" value={callbackUrl} />
@@ -42,18 +52,17 @@ export function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         />
       </label>
 
-      {state.error && (
+      {error && (
         <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300">
-          {state.error}
+          {error}
         </p>
       )}
 
       <button
         type="submit"
-        disabled={pending}
-        className="w-full rounded-full bg-gradient-accent py-3 text-sm font-medium text-white transition-all hover:brightness-110 disabled:opacity-60"
+        className="w-full rounded-full bg-gradient-accent py-3 text-sm font-medium text-white transition-all hover:brightness-110"
       >
-        {pending ? "Entrando…" : "Iniciar sesión"}
+        Iniciar sesión
       </button>
     </form>
   );
