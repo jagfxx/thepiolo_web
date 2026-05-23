@@ -4,180 +4,376 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
+  Svg,
+  Defs,
+  LinearGradient,
+  Stop,
+  Rect,
 } from "@react-pdf/renderer";
+import path from "path";
 import { billingIssuer } from "@/lib/billing/issuer";
+import { brand, statusLabels } from "@/lib/billing/brand";
 import type { InvoiceDto } from "@/lib/billing/invoices";
 import { formatCop } from "@/lib/billing/invoices";
 
+const logoPath = path.join(process.cwd(), "public", "THEPIOLO-05.svg");
+const CONTENT_W = 515;
+
 const styles = StyleSheet.create({
   page: {
-    padding: 48,
+    padding: 40,
+    paddingBottom: 56,
     fontFamily: "Helvetica",
     fontSize: 10,
-    color: "#1a1a28",
-    backgroundColor: "#ffffff",
+    color: brand.foreground,
+    backgroundColor: brand.background,
   },
-  header: {
-    marginBottom: 28,
-    paddingBottom: 16,
-    borderBottomWidth: 2,
-    borderBottomColor: "#b440ff",
-  },
-  brand: {
-    fontSize: 22,
-    fontFamily: "Helvetica-Bold",
-    color: "#b440ff",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 9,
-    color: "#8b8b9e",
-  },
-  title: {
-    fontSize: 16,
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 20,
-    color: "#13131e",
-  },
-  row: {
+  topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 8,
+    alignItems: "flex-start",
+    marginBottom: 24,
   },
-  label: {
-    color: "#8b8b9e",
-    width: "35%",
+  logo: {
+    width: 200,
+    height: 48,
+    objectFit: "contain",
+    objectPosition: "left",
   },
-  value: {
-    width: "65%",
+  brandFallback: {
+    fontSize: 18,
     fontFamily: "Helvetica-Bold",
-  },
-  section: {
-    marginTop: 16,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 9,
-    fontFamily: "Helvetica-Bold",
-    textTransform: "uppercase",
+    color: brand.accentMid,
     letterSpacing: 1,
-    color: "#8b8b9e",
-    marginBottom: 8,
   },
-  concept: {
-    lineHeight: 1.5,
-    marginBottom: 20,
+  decorDots: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: 30,
   },
-  amountBox: {
-    marginTop: 12,
-    padding: 16,
-    backgroundColor: "#f4f0fa",
-    borderRadius: 8,
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 4,
+    marginBottom: 4,
   },
-  amount: {
-    fontSize: 20,
+  title: {
+    fontSize: 28,
     fontFamily: "Helvetica-Bold",
-    color: "#b440ff",
+    color: brand.accentMid,
+    marginBottom: 20,
+    letterSpacing: 0.5,
+  },
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 28,
+  },
+  metaCol: {
+    width: "48%",
+  },
+  metaText: {
+    fontSize: 10,
+    color: brand.foregroundSubtle,
+    marginBottom: 6,
+    lineHeight: 1.4,
+  },
+  metaBold: {
+    fontFamily: "Helvetica-Bold",
+    color: brand.foreground,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginBottom: 2,
+    borderRadius: 24,
+    overflow: "hidden",
+  },
+  tableHeaderText: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 11,
+    color: "#FFFFFF",
+  },
+  tableRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: brand.border,
+  },
+  conceptCell: {
+    width: "68%",
+    fontSize: 10,
+    color: brand.foregroundSubtle,
+    lineHeight: 1.5,
+    paddingRight: 16,
+  },
+  valueCell: {
+    width: "28%",
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: brand.foreground,
+    textAlign: "right",
+  },
+  totalWrap: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 16,
+    marginBottom: 28,
+  },
+  totalPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 22,
+    borderRadius: 24,
+    minWidth: 180,
+    justifyContent: "space-between",
+  },
+  totalLabel: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 11,
+    color: "#FFFFFF",
+    marginRight: 16,
+  },
+  totalAmount: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 12,
+    color: "#FFFFFF",
   },
   footer: {
-    position: "absolute",
-    bottom: 40,
-    left: 48,
-    right: 48,
-    fontSize: 8,
-    color: "#8b8b9e",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "#e8e8ef",
-    paddingTop: 12,
+    borderTopColor: brand.border,
+  },
+  footerCol: {
+    width: "58%",
+  },
+  footerColRight: {
+    width: "38%",
+    alignItems: "flex-end",
+  },
+  sectionTitle: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: brand.foreground,
+    marginBottom: 8,
+  },
+  bodyText: {
+    fontSize: 9,
+    color: brand.foregroundSubtle,
+    lineHeight: 1.55,
+    marginBottom: 4,
+  },
+  contactLine: {
+    fontSize: 9,
+    color: brand.muted,
+    marginBottom: 4,
+    textAlign: "right",
+  },
+  statusBadge: {
+    marginTop: 4,
+    fontSize: 8,
+    color: brand.muted,
   },
 });
 
-function formatDate(iso: string): string {
+function formatDateShort(iso: string): string {
   return new Intl.DateTimeFormat("es-CO", {
-    dateStyle: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   }).format(new Date(iso));
 }
 
+function GradientBar({
+  width = CONTENT_W,
+  height = 40,
+  id = "brandGrad",
+}: {
+  width?: number;
+  height?: number;
+  id?: string;
+}) {
+  return (
+    <Svg width={width} height={height}>
+      <Defs>
+        <LinearGradient id={id} x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0%" stopColor={brand.accentStart} />
+          <Stop offset="50%" stopColor={brand.accentMid} />
+          <Stop offset="100%" stopColor={brand.accentEnd} />
+        </LinearGradient>
+      </Defs>
+      <Rect x={0} y={0} width={width} height={height} fill={`url(#${id})`} />
+    </Svg>
+  );
+}
+
+function DecorGrid() {
+  const colors = [brand.accentStart, brand.accentMid, brand.accentEnd];
+  const dots = [];
+  for (let i = 0; i < 9; i++) {
+    dots.push(
+      <View
+        key={i}
+        style={[styles.dot, { backgroundColor: colors[i % 3] }]}
+      />,
+    );
+  }
+  return <View style={styles.decorDots}>{dots}</View>;
+}
+
+function TableHeaderPill() {
+  return (
+    <View style={{ position: "relative", marginBottom: 2 }}>
+      <View style={{ height: 40, borderRadius: 24, overflow: "hidden" }}>
+        <GradientBar width={CONTENT_W} height={40} id="headerGrad" />
+      </View>
+      <View
+        style={[
+          styles.tableHeader,
+          {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "transparent",
+          },
+        ]}
+      >
+        <Text style={styles.tableHeaderText}>Concepto</Text>
+        <Text style={styles.tableHeaderText}>Valor</Text>
+      </View>
+    </View>
+  );
+}
+
+function TotalPill({ amount }: { amount: string }) {
+  const pillW = 220;
+  return (
+    <View style={{ position: "relative" }}>
+      <View style={{ height: 44, borderRadius: 24, overflow: "hidden", width: pillW }}>
+        <GradientBar width={pillW} height={44} id="totalGrad" />
+      </View>
+      <View
+        style={[
+          styles.totalPill,
+          {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "transparent",
+          },
+        ]}
+      >
+        <Text style={styles.totalLabel}>Total</Text>
+        <Text style={styles.totalAmount}>{amount}</Text>
+      </View>
+    </View>
+  );
+}
+
 export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
+  const amountFormatted = formatCop(invoice.amount, invoice.currency);
+  const statusLabel = statusLabels[invoice.status] ?? invoice.status;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <Text style={styles.brand}>{billingIssuer.brand}</Text>
-          <Text style={styles.subtitle}>{billingIssuer.name}</Text>
-          <Text style={styles.subtitle}>
-            {billingIssuer.email} · {billingIssuer.phone}
-          </Text>
+        {/* Header */}
+        <View style={styles.topRow}>
+          <View>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- PDF Image */}
+            <Image src={logoPath} style={styles.logo} />
+          </View>
+          <DecorGrid />
         </View>
 
-        <Text style={styles.title}>CUENTA DE COBRO</Text>
-        <Text style={styles.subtitle}>No. {invoice.number}</Text>
+        <Text style={styles.title}>Cuenta de cobro</Text>
 
-        <View style={styles.section}>
-          <View style={styles.row}>
-            <Text style={styles.label}>Fecha de emisión</Text>
-            <Text style={styles.value}>{formatDate(invoice.issuedAt)}</Text>
+        {/* Nº / Fecha | Cliente / NIT */}
+        <View style={styles.metaRow}>
+          <View style={styles.metaCol}>
+            <Text style={styles.metaText}>
+              <Text style={styles.metaBold}>No. </Text>
+              {invoice.number}
+            </Text>
+            <Text style={styles.metaText}>
+              <Text style={styles.metaBold}>Fecha: </Text>
+              {formatDateShort(invoice.issuedAt)}
+            </Text>
+            {invoice.dueAt ? (
+              <Text style={styles.metaText}>
+                <Text style={styles.metaBold}>Vence: </Text>
+                {formatDateShort(invoice.dueAt)}
+              </Text>
+            ) : null}
+            <Text style={styles.statusBadge}>Estado: {statusLabel}</Text>
           </View>
-          {invoice.dueAt && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Fecha de vencimiento</Text>
-              <Text style={styles.value}>{formatDate(invoice.dueAt)}</Text>
-            </View>
-          )}
-          <View style={styles.row}>
-            <Text style={styles.label}>Estado</Text>
-            <Text style={styles.value}>{invoice.status}</Text>
+          <View style={styles.metaCol}>
+            <Text style={styles.metaText}>
+              <Text style={styles.metaBold}>Empresa: </Text>
+              {invoice.clientName}
+            </Text>
+            {invoice.clientId ? (
+              <Text style={styles.metaText}>
+                <Text style={styles.metaBold}>NIT / CC: </Text>
+                {invoice.clientId}
+              </Text>
+            ) : null}
+            {invoice.clientEmail ? (
+              <Text style={styles.metaText}>
+                <Text style={styles.metaBold}>Correo: </Text>
+                {invoice.clientEmail}
+              </Text>
+            ) : null}
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Cliente</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>Nombre</Text>
-            <Text style={styles.value}>{invoice.clientName}</Text>
-          </View>
-          {invoice.clientId && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Identificación</Text>
-              <Text style={styles.value}>{invoice.clientId}</Text>
-            </View>
-          )}
-          {invoice.clientEmail && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Correo</Text>
-              <Text style={styles.value}>{invoice.clientEmail}</Text>
-            </View>
-          )}
+        {/* Tabla concepto / valor */}
+        <TableHeaderPill />
+        <View style={styles.tableRow}>
+          <Text style={styles.conceptCell}>{invoice.concept}</Text>
+          <Text style={styles.valueCell}>{amountFormatted}</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Concepto</Text>
-          <Text style={styles.concept}>{invoice.concept}</Text>
+        <View style={styles.totalWrap}>
+          <TotalPill amount={amountFormatted} />
         </View>
 
-        <View style={styles.amountBox}>
-          <Text style={styles.sectionTitle}>Valor a pagar</Text>
-          <Text style={styles.amount}>{formatCop(invoice.amount, invoice.currency)}</Text>
-        </View>
-
-        {invoice.paymentInstructions ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Instrucciones de pago</Text>
-            <Text style={styles.concept}>{invoice.paymentInstructions}</Text>
-          </View>
-        ) : null}
-
-        {invoice.notes ? (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Notas</Text>
-            <Text style={styles.concept}>{invoice.notes}</Text>
-          </View>
-        ) : null}
-
+        {/* Footer: pago + contacto */}
         <View style={styles.footer}>
-          <Text>
-            Documento generado por {billingIssuer.brand} · {billingIssuer.website}
-          </Text>
+          <View style={styles.footerCol}>
+            <Text style={styles.sectionTitle}>Información de pago</Text>
+            <Text style={styles.bodyText}>
+              {invoice.paymentInstructions || billingIssuer.defaultPaymentInstructions}
+            </Text>
+            {invoice.notes ? (
+              <>
+                <Text style={[styles.sectionTitle, { marginTop: 12 }]}>Notas</Text>
+                <Text style={styles.bodyText}>{invoice.notes}</Text>
+              </>
+            ) : null}
+          </View>
+          <View style={styles.footerColRight}>
+            <Text style={[styles.sectionTitle, { textAlign: "right" }]}>
+              {billingIssuer.name}
+            </Text>
+            <Text style={styles.contactLine}>{billingIssuer.email}</Text>
+            <Text style={styles.contactLine}>{billingIssuer.phone}</Text>
+            <Text style={styles.contactLine}>{billingIssuer.instagram}</Text>
+            <Text style={styles.contactLine}>{billingIssuer.website}</Text>
+          </View>
         </View>
       </Page>
     </Document>
