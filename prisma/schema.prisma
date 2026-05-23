@@ -24,16 +24,22 @@ enum BankAccountType {
   CHECKING
 }
 
+enum ClientIdType {
+  NIT
+  CC
+}
+
 model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  name         String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String           @id @default(cuid())
+  email           String           @unique
+  passwordHash    String
+  name            String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   invoices        Invoice[]
   apiKeys         ApiKey[]
   paymentMethods  PaymentMethod[]
+  billingClients  BillingClient[]
 }
 
 model ApiKey {
@@ -51,28 +57,59 @@ model ApiKey {
   @@index([userId])
 }
 
+model BillingClient {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  idType    ClientIdType?
+  idNumber  String?
+  email     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  invoices  Invoice[]
+
+  @@index([userId])
+}
+
 model Invoice {
-  id                  String        @id @default(cuid())
-  number              String        @unique
-  issuedAt            DateTime      @default(now())
+  id                  String            @id @default(cuid())
+  number              String            @unique
+  issuedAt            DateTime          @default(now())
   dueAt               DateTime?
   clientName          String
+  clientIdType        ClientIdType?
   clientId            String?
   clientEmail         String?
+  billingClientId     String?
+  billingClient       BillingClient?    @relation(fields: [billingClientId], references: [id], onDelete: SetNull)
   concept             String
-  amount              Decimal       @db.Decimal(14, 2)
-  currency            String        @default("COP")
-  status              InvoiceStatus @default(ISSUED)
-  paymentInstructions String        @default("")
+  amount              Decimal           @db.Decimal(14, 2)
+  currency            String            @default("COP")
+  status              InvoiceStatus     @default(ISSUED)
+  paymentInstructions String            @default("")
   notes               String?
   createdById         String
-  createdBy           User          @relation(fields: [createdById], references: [id])
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  createdBy           User              @relation(fields: [createdById], references: [id])
+  lineItems           InvoiceLineItem[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   @@index([createdById])
   @@index([status])
   @@index([issuedAt])
+  @@index([billingClientId])
+}
+
+model InvoiceLineItem {
+  id        String  @id @default(cuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  concept   String
+  amount    Decimal @db.Decimal(14, 2)
+  sortOrder Int     @default(0)
+
+  @@index([invoiceId])
 }
 
 model InvoiceCounter {

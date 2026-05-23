@@ -45,6 +45,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const invoice = await createInvoice(authResult.userId, parsed.data);
-  return NextResponse.json(invoice, { status: 201 });
+  try {
+    const invoice = await createInvoice(authResult.userId, parsed.data);
+    return NextResponse.json(invoice, { status: 201 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Error al crear cuenta de cobro";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 }

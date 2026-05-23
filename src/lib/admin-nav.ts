@@ -18,6 +18,11 @@ export const adminNavItems: AdminNavItem[] = [
     match: (pathname) => pathname === "/admin/invoices/new",
   },
   {
+    href: "/admin/clients",
+    label: "Clientes",
+    match: (pathname) => pathname.startsWith("/admin/clients"),
+  },
+  {
     href: "/admin/payment-methods",
     label: "Métodos de pago",
     match: (pathname) => pathname.startsWith("/admin/payment-methods"),

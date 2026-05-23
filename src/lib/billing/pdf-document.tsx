@@ -13,6 +13,7 @@ import {
 } from "@react-pdf/renderer";
 import { billingIssuer } from "@/lib/billing/issuer";
 import { brand, statusLabels } from "@/lib/billing/brand";
+import { formatClientIdLabel } from "@/lib/billing/clients";
 import type { InvoiceDto } from "@/lib/billing/invoices";
 import { formatCop } from "@/lib/billing/invoices";
 
@@ -290,15 +291,28 @@ function GradientPillBar({
   );
 }
 
+const ROW_HEIGHT = 28;
+const BASE_PAGE_HEIGHT = 480;
+const FOOTER_BLOCK = 200;
+const MAX_PAGE_HEIGHT = 1584;
+
+function estimatePageHeight(itemCount: number): number {
+  const content = BASE_PAGE_HEIGHT + itemCount * ROW_HEIGHT + FOOTER_BLOCK;
+  return Math.min(MAX_PAGE_HEIGHT, Math.max(792, content));
+}
+
 export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
+  const lineItems = invoice.lineItems;
   const amountFormatted = formatCop(invoice.amount, invoice.currency);
   const statusLabel = statusLabels[invoice.status] ?? invoice.status;
   const uid = invoice.id.slice(-6);
   const totalW = 220;
+  const pageHeight = estimatePageHeight(lineItems.length);
+  const idLabel = formatClientIdLabel(invoice.clientIdType, invoice.clientId);
 
   return (
     <Document>
-      <Page size="LETTER" style={styles.page}>
+      <Page size={[612, pageHeight]} style={styles.page}>
         <View style={styles.topRow}>
           <PdfBrandLogo gradId={`brand-h-${uid}`} />
         </View>
@@ -322,10 +336,10 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
               <Text style={styles.metaBold}>Empresa: </Text>
               {invoice.clientName}
             </Text>
-            {invoice.clientId ? (
+            {idLabel ? (
               <Text style={styles.metaText}>
-                <Text style={styles.metaBold}>NIT / CC: </Text>
-                {invoice.clientId}
+                <Text style={styles.metaBold}>Identificación: </Text>
+                {idLabel}
               </Text>
             ) : null}
             {invoice.clientEmail ? (
@@ -344,10 +358,14 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
           rightText="Valor"
         />
 
-        <View style={styles.tableRow}>
-          <Text style={styles.conceptCell}>{invoice.concept}</Text>
-          <Text style={styles.valueCell}>{amountFormatted}</Text>
-        </View>
+        {lineItems.map((item) => (
+          <View key={item.id} style={styles.tableRow} wrap={false}>
+            <Text style={styles.conceptCell}>{item.concept}</Text>
+            <Text style={styles.valueCell}>
+              {formatCop(item.amount, invoice.currency)}
+            </Text>
+          </View>
+        ))}
 
         <GradientRule gradId={`rule1-${uid}`} />
 
@@ -366,7 +384,7 @@ export function InvoicePdfDocument({ invoice }: { invoice: InvoiceDto }) {
           <View style={styles.footerCol}>
             <Text style={styles.sectionTitle}>Información de pago</Text>
             <Text style={styles.bodyText}>
-              {invoice.paymentInstructions || billingIssuer.defaultPaymentInstructions}
+              {invoice.paymentInstructions}
             </Text>
             {invoice.notes ? (
               <>

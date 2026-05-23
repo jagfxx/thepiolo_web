@@ -3,18 +3,25 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
-import type { InvoiceStatus } from "@prisma/client";
-import { billingIssuer } from "@/lib/billing/issuer";
+import type { ClientIdType, InvoiceStatus } from "@prisma/client";
+import {
+  ClientIdFields,
+  createInitialLineItems,
+  LineItemsEditor,
+  type LineItemDraft,
+} from "@/components/admin/LineItemsEditor";
+import type { BillingClientDto } from "@/lib/billing/clients";
+import type { InvoiceDto } from "@/lib/billing/invoices";
 import {
   formatPaymentInstructions,
   partitionPaymentMethods,
   paymentMethodSummary,
   type PaymentMethodDto,
 } from "@/lib/billing/payment-methods";
-import type { InvoiceDto } from "@/lib/billing/invoices";
 
 type InvoiceFormProps = {
   paymentMethods: PaymentMethodDto[];
+  clients: BillingClientDto[];
   invoice?: InvoiceDto;
 };
 
@@ -24,7 +31,7 @@ function toDateInput(iso: string): string {
   return iso.slice(0, 10);
 }
 
-export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
+export function InvoiceForm({ paymentMethods, clients, invoice }: InvoiceFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const isEdit = Boolean(invoice);
@@ -32,6 +39,19 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [selectedClientId, setSelectedClientId] = useState(invoice?.billingClientId ?? "");
+  const [clientName, setClientName] = useState(invoice?.clientName ?? "");
+  const [clientIdType, setClientIdType] = useState<ClientIdType | "">(
+    invoice?.clientIdType ?? "",
+  );
+  const [clientIdNumber, setClientIdNumber] = useState(invoice?.clientId ?? "");
+  const [clientEmail, setClientEmail] = useState(invoice?.clientEmail ?? "");
+  const [saveClient, setSaveClient] = useState(false);
+
+  const [lineItems, setLineItems] = useState<LineItemDraft[]>(() =>
+    createInitialLineItems(invoice?.lineItems),
+  );
 
   const defaultSelectedIds = useMemo(() => {
     if (isEdit) return paymentMethods.map((m) => m.id);
@@ -50,15 +70,29 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
     [paymentMethods, selectedIds],
   );
 
-  const paymentPreview = useMemo(() => {
-    if (selectedMethods.length === 0) return billingIssuer.defaultPaymentInstructions;
-    return formatPaymentInstructions(selectedMethods);
-  }, [selectedMethods]);
+  const paymentPreview = useMemo(
+    () => formatPaymentInstructions(selectedMethods),
+    [selectedMethods],
+  );
 
   const { bankAccounts, brebKeys } = useMemo(
     () => partitionPaymentMethods(paymentMethods),
     [paymentMethods],
   );
+
+  function applyClient(clientId: string) {
+    setSelectedClientId(clientId);
+    if (!clientId) return;
+
+    const client = clients.find((item) => item.id === clientId);
+    if (!client) return;
+
+    setClientName(client.name);
+    setClientIdType(client.idType ?? "");
+    setClientIdNumber(client.idNumber ?? "");
+    setClientEmail(client.email ?? "");
+    setSaveClient(false);
+  }
 
   function toggleMethod(id: string) {
     setSelectedIds((prev) =>
@@ -96,12 +130,41 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
     );
   }
 
+  function validateBeforeSubmit(): string | null {
+    if (paymentMethods.length === 0) {
+      return "Configura al menos un método de pago antes de crear una cuenta de cobro";
+    }
+    if (selectedIds.length === 0) {
+      return "Selecciona al menos un método de pago";
+    }
+    if (!clientName.trim()) {
+      return "El nombre del cliente es obligatorio";
+    }
+    if (clientIdNumber && !clientIdType) {
+      return "Selecciona NIT o CC";
+    }
+    if (lineItems.some((item) => !item.concept.trim())) {
+      return "Todos los conceptos deben tener descripción";
+    }
+    if (lineItems.some((item) => item.amount <= 0)) {
+      return "Todos los conceptos deben tener un monto mayor a 0";
+    }
+    return null;
+  }
+
   async function submitForm(
     e: React.FormEvent<HTMLFormElement>,
     statusOverride?: InvoiceStatus,
   ) {
     e.preventDefault();
     setError(null);
+
+    const validationError = validateBeforeSubmit();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
@@ -109,29 +172,25 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
       statusOverride ?? (form.get("status") as InvoiceStatus) ?? (isEdit ? "ISSUED" : "ISSUED");
 
     const payload: Record<string, unknown> = {
-      clientName: form.get("clientName"),
-      clientId: form.get("clientId") || undefined,
-      clientEmail: form.get("clientEmail") || undefined,
-      concept: form.get("concept"),
-      amount: form.get("amount"),
+      clientName: clientName.trim(),
+      clientIdType: clientIdType || undefined,
+      clientIdNumber: clientIdNumber || undefined,
+      billingClientId: selectedClientId || undefined,
+      saveClient: saveClient || undefined,
+      clientEmail: clientEmail || undefined,
+      lineItems: lineItems.map((item) => ({
+        concept: item.concept.trim(),
+        amount: item.amount,
+      })),
       issuedAt: form.get("issuedAt") || today,
       notes: form.get("notes") || undefined,
       status,
+      paymentMethodIds: selectedIds,
     };
 
-    if (paymentMethods.length > 0) {
-      if (selectedIds.length === 0) {
-        setError("Selecciona al menos un método de pago");
-        setLoading(false);
-        return;
-      }
-      payload.paymentMethodIds = selectedIds;
-      const extra = form.get("paymentExtraNotes");
-      if (extra && String(extra).trim()) {
-        payload.paymentExtraNotes = String(extra).trim();
-      }
-    } else {
-      payload.paymentInstructions = form.get("paymentInstructions") || undefined;
+    const extra = form.get("paymentExtraNotes");
+    if (extra && String(extra).trim()) {
+      payload.paymentExtraNotes = String(extra).trim();
     }
 
     try {
@@ -165,6 +224,22 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
     await submitForm(event, statusOverride);
   }
 
+  if (paymentMethods.length === 0) {
+    return (
+      <div className="max-w-2xl space-y-4 rounded-3xl border border-border glass p-6 sm:p-8">
+        <p className="text-sm text-muted">
+          Antes de crear cuentas de cobro debes configurar al menos un método de pago.
+        </p>
+        <Link
+          href="/admin/payment-methods"
+          className="inline-flex rounded-full bg-gradient-accent px-6 py-2.5 text-sm font-medium text-white hover:brightness-110"
+        >
+          Ir a métodos de pago
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <form
       ref={formRef}
@@ -177,63 +252,83 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block sm:col-span-2">
-          <span className="mb-1.5 block text-xs font-medium text-muted">Cliente *</span>
+      <div className="space-y-4">
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-medium text-muted">Cliente guardado</span>
+          <select
+            value={selectedClientId}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === "__new__") {
+                setSelectedClientId("");
+                setClientName("");
+                setClientIdType("");
+                setClientIdNumber("");
+                setClientEmail("");
+                return;
+              }
+              applyClient(value);
+            }}
+            className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
+          >
+            <option value="">Seleccionar cliente…</option>
+            {clients.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.name}
+                {client.idNumber ? ` — ${client.idType ?? "ID"} ${client.idNumber}` : ""}
+              </option>
+            ))}
+            <option value="__new__">+ Nuevo cliente</option>
+          </select>
+        </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-medium text-muted">
+            Nombre o razón social *
+          </span>
           <input
-            name="clientName"
             required
-            defaultValue={invoice?.clientName}
+            value={clientName}
+            onChange={(e) => setClientName(e.target.value)}
             className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
             placeholder="Nombre o razón social"
           />
         </label>
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-medium text-muted">NIT / CC</span>
-          <input
-            name="clientId"
-            defaultValue={invoice?.clientId ?? ""}
-            className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-            placeholder="Opcional"
-          />
-        </label>
+
+        <ClientIdFields
+          idType={clientIdType}
+          idNumber={clientIdNumber}
+          onIdTypeChange={setClientIdType}
+          onIdNumberChange={setClientIdNumber}
+        />
+
         <label className="block">
           <span className="mb-1.5 block text-xs font-medium text-muted">Correo cliente</span>
           <input
-            name="clientEmail"
             type="email"
-            defaultValue={invoice?.clientEmail ?? ""}
+            value={clientEmail}
+            onChange={(e) => setClientEmail(e.target.value)}
             className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
             placeholder="Opcional"
           />
         </label>
+
+        {!selectedClientId ? (
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground-subtle">
+            <input
+              type="checkbox"
+              checked={saveClient}
+              onChange={(e) => setSaveClient(e.target.checked)}
+              className="rounded border-border"
+            />
+            Guardar como cliente para futuras cuentas
+          </label>
+        ) : null}
       </div>
 
-      <label className="block">
-        <span className="mb-1.5 block text-xs font-medium text-muted">Concepto *</span>
-        <textarea
-          name="concept"
-          required
-          rows={4}
-          defaultValue={invoice?.concept}
-          className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-          placeholder="Descripción del servicio o producto"
-        />
-      </label>
+      <LineItemsEditor items={lineItems} onChange={setLineItems} />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-medium text-muted">Monto (COP) *</span>
-          <input
-            name="amount"
-            type="number"
-            min="1"
-            required
-            defaultValue={invoice?.amount}
-            className="w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-            placeholder="1500000"
-          />
-        </label>
+      <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1.5 block text-xs font-medium text-muted">Fecha de emisión *</span>
           <input
@@ -262,7 +357,7 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
 
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs font-medium text-muted">Métodos de pago en el PDF</span>
+          <span className="text-xs font-medium text-muted">Métodos de pago en el PDF *</span>
           <Link
             href="/admin/payment-methods"
             className="text-xs text-gradient hover:underline"
@@ -271,52 +366,31 @@ export function InvoiceForm({ paymentMethods, invoice }: InvoiceFormProps) {
           </Link>
         </div>
 
-        {paymentMethods.length > 0 ? (
-          <>
-            <div className="space-y-4 rounded-xl border border-border bg-surface p-3">
-              {renderMethodGroup("Cuenta bancaria", bankAccounts)}
-              {bankAccounts.length > 0 && brebKeys.length > 0 ? (
-                <div className="border-t border-border pt-3" />
-              ) : null}
-              {renderMethodGroup("Llave Bre-B", brebKeys)}
-            </div>
-            <pre className="whitespace-pre-wrap rounded-xl border border-border bg-surface-elevated/50 p-4 font-sans text-xs text-foreground-subtle">
-              {paymentPreview}
-            </pre>
-            <label className="block">
-              <span className="mb-1.5 block text-xs font-medium text-muted">
-                Notas adicionales de pago (opcional)
-              </span>
-              <textarea
-                name="paymentExtraNotes"
-                rows={2}
-                className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-                placeholder="Ej: Enviar comprobante por WhatsApp"
-              />
-            </label>
-          </>
-        ) : (
-          <>
-            <p className="rounded-xl border border-border bg-surface p-4 text-sm text-muted">
-              No tienes métodos de pago guardados.{" "}
-              <Link href="/admin/payment-methods" className="text-gradient hover:underline">
-                Configúralos aquí
-              </Link>{" "}
-              para no escribir los datos cada vez.
-            </p>
-            <label className="block">
-              <span className="mb-1.5 block text-xs font-medium text-muted">
-                Instrucciones de pago
-              </span>
-              <textarea
-                name="paymentInstructions"
-                rows={3}
-                defaultValue={invoice?.paymentInstructions ?? billingIssuer.defaultPaymentInstructions}
-                className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
-              />
-            </label>
-          </>
-        )}
+        <div className="space-y-4 rounded-xl border border-border bg-surface p-3">
+          {renderMethodGroup("Cuenta bancaria", bankAccounts)}
+          {bankAccounts.length > 0 && brebKeys.length > 0 ? (
+            <div className="border-t border-border pt-3" />
+          ) : null}
+          {renderMethodGroup("Llave Bre-B", brebKeys)}
+        </div>
+
+        {paymentPreview ? (
+          <pre className="whitespace-pre-wrap rounded-xl border border-border bg-surface-elevated/50 p-4 font-sans text-xs text-foreground-subtle">
+            {paymentPreview}
+          </pre>
+        ) : null}
+
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-medium text-muted">
+            Notas adicionales de pago (opcional)
+          </span>
+          <textarea
+            name="paymentExtraNotes"
+            rows={2}
+            className="w-full resize-y rounded-xl border border-border bg-surface px-4 py-2.5 text-sm outline-none focus:border-border-hover"
+            placeholder="Ej: Enviar comprobante por WhatsApp"
+          />
+        </label>
       </div>
 
       <label className="block">

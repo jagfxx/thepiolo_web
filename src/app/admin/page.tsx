@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { BrandLogo } from "@/components/admin/BrandLogo";
 import { AdminShell } from "@/components/admin/AdminShell";
-import { formatCop, serializeInvoice } from "@/lib/billing/invoices";
+import { formatCop, serializeInvoice, invoiceRowClass } from "@/lib/billing/invoices";
 import { statusLabels } from "@/lib/billing/brand";
 import { prisma } from "@/lib/db";
 
@@ -11,6 +11,7 @@ export default async function AdminDashboardPage() {
   const invoices = await prisma.invoice.findMany({
     orderBy: { issuedAt: "desc" },
     take: 100,
+    include: { lineItems: { orderBy: { sortOrder: "asc" } } },
   });
 
   return (
@@ -50,7 +51,7 @@ export default async function AdminDashboardPage() {
               {invoices.map((row) => {
                 const inv = serializeInvoice(row);
                 return (
-                  <tr key={inv.id} className="border-b border-border/60 hover:bg-surface/50">
+                  <tr key={inv.id} className={invoiceRowClass(inv.status)}>
                     <td className="px-4 py-3 font-mono text-xs">{inv.number}</td>
                     <td className="px-4 py-3">{inv.clientName}</td>
                     <td className="px-4 py-3">{formatCop(inv.amount, inv.currency)}</td>

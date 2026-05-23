@@ -1,5 +1,4 @@
 import type { BankAccountType, PaymentMethod, PaymentMethodType } from "@prisma/client";
-import { billingIssuer } from "@/lib/billing/issuer";
 import type {
   CreatePaymentMethodInput,
   UpdatePaymentMethodInput,
@@ -70,7 +69,7 @@ export function formatPaymentMethod(method: PaymentMethodDto): string {
 }
 
 export function formatPaymentInstructions(methods: PaymentMethodDto[]): string {
-  if (methods.length === 0) return billingIssuer.defaultPaymentInstructions;
+  if (methods.length === 0) return "";
 
   const { bankAccounts, brebKeys } = partitionPaymentMethods(methods);
   const sections: string[] = [];
@@ -205,24 +204,19 @@ export async function resolveInvoicePaymentInstructions(
   userId: string,
   input: {
     paymentMethodIds?: string[];
-    paymentInstructions?: string;
     paymentExtraNotes?: string;
   },
 ): Promise<string> {
-  let base: string;
-
-  if (input.paymentMethodIds?.length) {
-    const methods = await listPaymentMethodsByIds(userId, input.paymentMethodIds);
-    base =
-      methods.length > 0
-        ? formatPaymentInstructions(methods)
-        : billingIssuer.defaultPaymentInstructions;
-  } else if (input.paymentInstructions?.trim()) {
-    base = input.paymentInstructions.trim();
-  } else {
-    base = billingIssuer.defaultPaymentInstructions;
+  if (!input.paymentMethodIds?.length) {
+    throw new Error("Se requiere al menos un método de pago");
   }
 
+  const methods = await listPaymentMethodsByIds(userId, input.paymentMethodIds);
+  if (methods.length === 0) {
+    throw new Error("Métodos de pago no encontrados");
+  }
+
+  const base = formatPaymentInstructions(methods);
   const extra = input.paymentExtraNotes?.trim();
   if (extra) {
     return `${base}\n\n${extra}`;

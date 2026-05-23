@@ -5,7 +5,9 @@ import { AdminShell } from "@/components/admin/AdminShell";
 import { InvoiceDetailActions } from "@/components/admin/InvoiceDetailActions";
 import { InvoiceForm } from "@/components/admin/InvoiceForm";
 import { statusLabels } from "@/lib/billing/brand";
+import { formatClientIdLabel } from "@/lib/billing/clients";
 import { formatCop, getInvoiceById } from "@/lib/billing/invoices";
+import { listBillingClients } from "@/lib/billing/clients";
 import { listPaymentMethods } from "@/lib/billing/payment-methods";
 import { auth } from "@/lib/auth";
 
@@ -17,12 +19,17 @@ export default async function InvoiceDetailPage({ params }: Props) {
   const invoice = await getInvoiceById(id);
   if (!invoice) notFound();
 
-  const paymentMethods =
-    session?.user?.id && invoice.status === "DRAFT"
-      ? await listPaymentMethods(session.user.id)
-      : [];
-
   const isDraft = invoice.status === "DRAFT";
+
+  const [paymentMethods, clients] =
+    session?.user?.id && isDraft
+      ? await Promise.all([
+          listPaymentMethods(session.user.id),
+          listBillingClients(session.user.id),
+        ])
+      : [[], []];
+
+  const idLabel = formatClientIdLabel(invoice.clientIdType, invoice.clientId);
 
   return (
     <AdminShell title={invoice.number}>
@@ -36,7 +43,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
         />
 
         {isDraft ? (
-          <InvoiceForm paymentMethods={paymentMethods} invoice={invoice} />
+          <InvoiceForm paymentMethods={paymentMethods} clients={clients} invoice={invoice} />
         ) : (
           <div className="rounded-3xl border border-border glass p-6 sm:p-8">
             <dl className="grid gap-4 text-sm sm:grid-cols-2">
@@ -44,14 +51,14 @@ export default async function InvoiceDetailPage({ params }: Props) {
                 <dt className="text-xs text-muted">Cliente</dt>
                 <dd className="mt-1 font-medium">{invoice.clientName}</dd>
               </div>
-              {invoice.clientId ? (
+              {idLabel ? (
                 <div>
                   <dt className="text-xs text-muted">Identificación</dt>
-                  <dd className="mt-1">{invoice.clientId}</dd>
+                  <dd className="mt-1">{idLabel}</dd>
                 </div>
               ) : null}
               <div>
-                <dt className="text-xs text-muted">Monto</dt>
+                <dt className="text-xs text-muted">Monto total</dt>
                 <dd className="mt-1 text-lg font-semibold text-gradient">
                   {formatCop(invoice.amount, invoice.currency)}
                 </dd>
@@ -67,8 +74,20 @@ export default async function InvoiceDetailPage({ params }: Props) {
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-xs text-muted">Concepto</dt>
-                <dd className="mt-1 leading-relaxed text-foreground-subtle">{invoice.concept}</dd>
+                <dt className="text-xs text-muted">Conceptos</dt>
+                <dd className="mt-2 space-y-2">
+                  {invoice.lineItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-start justify-between gap-4 rounded-lg border border-border/60 bg-surface/40 px-3 py-2"
+                    >
+                      <span className="text-foreground-subtle">{item.concept}</span>
+                      <span className="shrink-0 font-medium">
+                        {formatCop(item.amount, invoice.currency)}
+                      </span>
+                    </div>
+                  ))}
+                </dd>
               </div>
               {invoice.paymentInstructions ? (
                 <div className="sm:col-span-2">

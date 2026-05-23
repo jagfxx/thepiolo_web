@@ -1,7 +1,15 @@
-import type { Invoice, InvoiceStatus, Prisma } from "@prisma/client";
+import type { ClientIdType, Invoice, InvoiceLineItem, InvoiceStatus, Prisma } from "@prisma/client";
+import { formatClientIdLabel, upsertBillingClientFromInvoice } from "@/lib/billing/clients";
 import { resolveInvoicePaymentInstructions } from "@/lib/billing/payment-methods";
 import type { CreateInvoiceInput, UpdateInvoiceInput } from "@/lib/billing/validators";
 import { prisma } from "@/lib/db";
+
+export type InvoiceLineItemDto = {
+  id: string;
+  concept: string;
+  amount: number;
+  sortOrder: number;
+};
 
 export type InvoiceDto = {
   id: string;
@@ -9,9 +17,12 @@ export type InvoiceDto = {
   issuedAt: string;
   dueAt: string | null;
   clientName: string;
+  clientIdType: ClientIdType | null;
   clientId: string | null;
   clientEmail: string | null;
+  billingClientId: string | null;
   concept: string;
+  lineItems: InvoiceLineItemDto[];
   amount: number;
   currency: string;
   status: InvoiceStatus;
@@ -21,16 +32,44 @@ export type InvoiceDto = {
   updatedAt: string;
 };
 
-export function serializeInvoice(invoice: Invoice): InvoiceDto {
+type InvoiceWithLineItems = Invoice & { lineItems?: InvoiceLineItem[] };
+
+function serializeLineItem(item: InvoiceLineItem): InvoiceLineItemDto {
+  return {
+    id: item.id,
+    concept: item.concept,
+    amount: Number(item.amount),
+    sortOrder: item.sortOrder,
+  };
+}
+
+export function serializeInvoice(invoice: InvoiceWithLineItems): InvoiceDto {
+  const lineItems =
+    invoice.lineItems && invoice.lineItems.length > 0
+      ? [...invoice.lineItems]
+          .sort((a, b) => a.sortOrder - b.sortOrder)
+          .map(serializeLineItem)
+      : [
+          {
+            id: `${invoice.id}-legacy`,
+            concept: invoice.concept,
+            amount: Number(invoice.amount),
+            sortOrder: 0,
+          },
+        ];
+
   return {
     id: invoice.id,
     number: invoice.number,
     issuedAt: invoice.issuedAt.toISOString(),
     dueAt: invoice.dueAt?.toISOString() ?? null,
     clientName: invoice.clientName,
+    clientIdType: invoice.clientIdType,
     clientId: invoice.clientId,
     clientEmail: invoice.clientEmail,
+    billingClientId: invoice.billingClientId,
     concept: invoice.concept,
+    lineItems,
     amount: Number(invoice.amount),
     currency: invoice.currency,
     status: invoice.status,
@@ -40,6 +79,12 @@ export function serializeInvoice(invoice: Invoice): InvoiceDto {
     updatedAt: invoice.updatedAt.toISOString(),
   };
 }
+
+export { formatClientIdLabel };
+
+const invoiceInclude = {
+  lineItems: { orderBy: { sortOrder: "asc" as const } },
+};
 
 async function nextInvoiceNumber(issuedAt: Date): Promise<string> {
   const year = issuedAt.getFullYear();
@@ -61,18 +106,57 @@ async function nextInvoiceNumber(issuedAt: Date): Promise<string> {
   return `CC-${year}-${seq}`;
 }
 
+function summarizeConcepts(lineItems: { concept: string }[]): string {
+  return lineItems.map((item) => item.concept).join(" · ");
+}
+
+function totalAmount(lineItems: { amount: number }[]): number {
+  return lineItems.reduce((sum, item) => sum + item.amount, 0);
+}
+
+async function resolveBillingClientId(
+  userId: string,
+  input: Pick<
+    CreateInvoiceInput,
+    "billingClientId" | "saveClient" | "clientName" | "clientIdType" | "clientIdNumber" | "clientEmail"
+  >,
+): Promise<string | null> {
+  if (input.billingClientId) {
+    const existing = await prisma.billingClient.findFirst({
+      where: { id: input.billingClientId, userId },
+    });
+    if (existing) return existing.id;
+  }
+
+  if (input.saveClient) {
+    const saved = await upsertBillingClientFromInvoice(userId, {
+      name: input.clientName,
+      idType: input.clientIdType ?? null,
+      idNumber: input.clientIdNumber?.trim() || null,
+      email: input.clientEmail || null,
+    });
+    return saved.id;
+  }
+
+  return input.billingClientId ?? null;
+}
+
 export async function createInvoice(
   userId: string,
   input: CreateInvoiceInput,
 ): Promise<InvoiceDto> {
   const issuedAt = input.issuedAt ?? new Date();
   const number = await nextInvoiceNumber(issuedAt);
+  const lineItems = input.lineItems;
+  const amount = totalAmount(lineItems);
+  const concept = summarizeConcepts(lineItems);
 
   const paymentInstructions = await resolveInvoicePaymentInstructions(userId, {
     paymentMethodIds: input.paymentMethodIds,
-    paymentInstructions: input.paymentInstructions,
     paymentExtraNotes: input.paymentExtraNotes,
   });
+
+  const billingClientId = await resolveBillingClientId(userId, input);
 
   const invoice = await prisma.invoice.create({
     data: {
@@ -80,16 +164,26 @@ export async function createInvoice(
       issuedAt,
       dueAt: null,
       clientName: input.clientName,
-      clientId: input.clientId || null,
+      clientIdType: input.clientIdType ?? null,
+      clientId: input.clientIdNumber?.trim() || null,
       clientEmail: input.clientEmail || null,
-      concept: input.concept,
-      amount: input.amount,
+      billingClientId,
+      concept,
+      amount,
       currency: input.currency ?? "COP",
       status: input.status ?? "ISSUED",
       paymentInstructions,
       notes: input.notes || null,
       createdById: userId,
+      lineItems: {
+        create: lineItems.map((item, index) => ({
+          concept: item.concept,
+          amount: item.amount,
+          sortOrder: index,
+        })),
+      },
     },
+    include: invoiceInclude,
   });
 
   return serializeInvoice(invoice);
@@ -109,6 +203,7 @@ export async function listInvoices(params?: {
       orderBy: { issuedAt: "desc" },
       take: params?.limit ?? 50,
       skip: params?.offset ?? 0,
+      include: invoiceInclude,
     }),
     prisma.invoice.count({ where }),
   ]);
@@ -117,7 +212,10 @@ export async function listInvoices(params?: {
 }
 
 export async function getInvoiceById(id: string): Promise<InvoiceDto | null> {
-  const invoice = await prisma.invoice.findUnique({ where: { id } });
+  const invoice = await prisma.invoice.findUnique({
+    where: { id },
+    include: invoiceInclude,
+  });
   return invoice ? serializeInvoice(invoice) : null;
 }
 
@@ -126,7 +224,10 @@ export async function updateInvoice(
   input: UpdateInvoiceInput,
   userId?: string,
 ): Promise<InvoiceDto | null> {
-  const existing = await prisma.invoice.findUnique({ where: { id } });
+  const existing = await prisma.invoice.findUnique({
+    where: { id },
+    include: invoiceInclude,
+  });
   if (!existing) return null;
 
   const isDraft = existing.status === "DRAFT";
@@ -138,31 +239,68 @@ export async function updateInvoice(
 
   if (isDraft) {
     if (input.clientName !== undefined) data.clientName = input.clientName;
-    if (input.clientId !== undefined) {
-      data.clientId = input.clientId === "" ? null : input.clientId;
+    if (input.clientIdType !== undefined) {
+      data.clientIdType = input.clientIdType ?? null;
+    }
+    if (input.clientIdNumber !== undefined) {
+      data.clientId = input.clientIdNumber === "" ? null : input.clientIdNumber;
     }
     if (input.clientEmail !== undefined) {
       data.clientEmail = input.clientEmail === "" ? null : input.clientEmail;
     }
-    if (input.concept !== undefined) data.concept = input.concept;
-    if (input.amount !== undefined) data.amount = input.amount;
     if (input.currency !== undefined) data.currency = input.currency;
     if (input.issuedAt !== undefined) data.issuedAt = input.issuedAt;
     if (input.notes !== undefined) data.notes = input.notes === "" ? null : input.notes;
 
-    if (userId && (input.paymentMethodIds?.length || input.paymentInstructions !== undefined)) {
+    if (input.lineItems !== undefined) {
+      const amount = totalAmount(input.lineItems);
+      data.concept = summarizeConcepts(input.lineItems);
+      data.amount = amount;
+    }
+
+    if (userId && input.paymentMethodIds?.length) {
       data.paymentInstructions = await resolveInvoicePaymentInstructions(userId, {
         paymentMethodIds: input.paymentMethodIds,
-        paymentInstructions: input.paymentInstructions,
         paymentExtraNotes: input.paymentExtraNotes,
       });
-    } else if (input.paymentInstructions !== undefined) {
-      data.paymentInstructions = input.paymentInstructions;
+    }
+
+    if (userId && (input.saveClient || input.billingClientId)) {
+      const billingClientId = await resolveBillingClientId(userId, {
+        billingClientId: input.billingClientId,
+        saveClient: input.saveClient,
+        clientName: input.clientName ?? existing.clientName,
+        clientIdType: input.clientIdType ?? existing.clientIdType ?? undefined,
+        clientIdNumber: input.clientIdNumber ?? existing.clientId ?? undefined,
+        clientEmail: input.clientEmail ?? existing.clientEmail ?? undefined,
+      });
+      data.billingClient = billingClientId
+        ? { connect: { id: billingClientId } }
+        : { disconnect: true };
     }
   }
 
   try {
-    const invoice = await prisma.invoice.update({ where: { id }, data });
+    const invoice = await prisma.$transaction(async (tx) => {
+      if (isDraft && input.lineItems !== undefined) {
+        await tx.invoiceLineItem.deleteMany({ where: { invoiceId: id } });
+        await tx.invoiceLineItem.createMany({
+          data: input.lineItems.map((item, index) => ({
+            invoiceId: id,
+            concept: item.concept,
+            amount: item.amount,
+            sortOrder: index,
+          })),
+        });
+      }
+
+      return tx.invoice.update({
+        where: { id },
+        data,
+        include: invoiceInclude,
+      });
+    });
+
     return serializeInvoice(invoice);
   } catch {
     return null;
@@ -175,4 +313,18 @@ export function formatCop(amount: number, currency = "COP"): string {
     currency,
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+export function invoiceRowClass(status: InvoiceStatus): string {
+  const base = "border-b border-border/60 transition-colors";
+  switch (status) {
+    case "PAID":
+      return `${base} bg-emerald-500/15 hover:bg-emerald-500/25`;
+    case "DRAFT":
+      return `${base} bg-amber-500/15 hover:bg-amber-500/25`;
+    case "CANCELLED":
+      return `${base} bg-red-500/15 hover:bg-red-500/25`;
+    default:
+      return `${base} hover:bg-surface/50`;
+  }
 }

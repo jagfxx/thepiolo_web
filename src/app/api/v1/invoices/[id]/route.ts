@@ -42,10 +42,15 @@ export async function PATCH(request: Request, { params }: Params) {
     );
   }
 
-  const invoice = await updateInvoice(id, parsed.data, authResult.userId);
-  if (!invoice) {
-    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
-  }
+  try {
+    const invoice = await updateInvoice(id, parsed.data, authResult.userId);
+    if (!invoice) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
 
-  return NextResponse.json(invoice);
+    return NextResponse.json(invoice);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Error al actualizar cuenta de cobro";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
 }
