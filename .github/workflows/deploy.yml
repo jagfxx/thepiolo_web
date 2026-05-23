@@ -68,7 +68,7 @@ jobs:
 
             echo "🔄 Reiniciando aplicación con PM2..."
             if command -v pm2 &> /dev/null; then
-              pm2 restart thepiolo-web || pm2 start ecosystem.config.js
+              pm2 restart thepiolo-web --update-env || pm2 start ecosystem.config.js
               pm2 save
               echo "✅ thepiolo-web reiniciado (puerto 3001)"
             else

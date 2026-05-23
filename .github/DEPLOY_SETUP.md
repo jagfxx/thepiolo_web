@@ -184,3 +184,44 @@ curl -X POST https://thepiolo.icu/api/v1/invoices \
 ```
 
 Genera API keys en `/admin/api-keys`.
+
+**Login no hace nada / no entra al admin:**
+
+1. En `.env`, usa un secret **sin espacios** (genera uno nuevo):
+
+```bash
+openssl rand -base64 32
+```
+
+Añade en `.env`:
+
+```env
+AUTH_SECRET="pega_aqui_el_resultado"
+NEXTAUTH_SECRET="el_mismo_valor"
+AUTH_URL="https://thepiolo.icu"
+NEXTAUTH_URL="https://thepiolo.icu"
+```
+
+2. Crea el usuario admin (solo la primera vez):
+
+```bash
+cd ~/thepiolo_web
+npm run db:seed
+```
+
+3. Recarga PM2 con las variables del `.env`:
+
+```bash
+pm2 delete thepiolo-web
+pm2 start ecosystem.config.js
+pm2 save
+```
+
+4. Verifica tablas y usuario:
+
+```bash
+psql "$DATABASE_URL" -c "\dt"
+# debe listar User, Invoice, ApiKey…
+```
+
+5. Prueba login en `https://thepiolo.icu/admin` con `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
