@@ -19,10 +19,10 @@ export default async function InvoiceDetailPage({ params }: Props) {
   const invoice = await getInvoiceById(id);
   if (!invoice) notFound();
 
-  const isDraft = invoice.status === "DRAFT";
+  const isEditable = invoice.status !== "CANCELLED";
 
   const [paymentMethods, clients] =
-    session?.user?.id && isDraft
+    session?.user?.id && isEditable
       ? await Promise.all([
           listPaymentMethods(session.user.id),
           listBillingClients(session.user.id),
@@ -42,7 +42,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
           currentStatus={invoice.status}
         />
 
-        {isDraft ? (
+        {isEditable ? (
           <InvoiceForm paymentMethods={paymentMethods} clients={clients} invoice={invoice} />
         ) : (
           <div className="rounded-3xl border border-border glass p-6 sm:p-8">

@@ -36,6 +36,7 @@ export function InvoiceForm({ paymentMethods, clients, invoice }: InvoiceFormPro
   const formRef = useRef<HTMLFormElement>(null);
   const isEdit = Boolean(invoice);
   const isDraft = invoice?.status === "DRAFT";
+  const isIssuedEdit = isEdit && !isDraft && invoice?.status !== "CANCELLED";
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -168,8 +169,6 @@ export function InvoiceForm({ paymentMethods, clients, invoice }: InvoiceFormPro
     setLoading(true);
 
     const form = new FormData(e.currentTarget);
-    const status =
-      statusOverride ?? (form.get("status") as InvoiceStatus) ?? (isEdit ? "ISSUED" : "ISSUED");
 
     const payload: Record<string, unknown> = {
       clientName: clientName.trim(),
@@ -184,9 +183,16 @@ export function InvoiceForm({ paymentMethods, clients, invoice }: InvoiceFormPro
       })),
       issuedAt: form.get("issuedAt") || today,
       notes: form.get("notes") || undefined,
-      status,
       paymentMethodIds: selectedIds,
     };
+
+    if (statusOverride !== undefined) {
+      payload.status = statusOverride;
+    } else if (!isEdit) {
+      payload.status = (form.get("status") as InvoiceStatus) || "ISSUED";
+    } else if (isDraft) {
+      payload.status = "ISSUED";
+    }
 
     const extra = form.get("paymentExtraNotes");
     if (extra && String(extra).trim()) {
@@ -249,6 +255,10 @@ export function InvoiceForm({ paymentMethods, clients, invoice }: InvoiceFormPro
       {isDraft ? (
         <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">
           Borrador — puedes editar todos los campos y emitir cuando esté listo.
+        </p>
+      ) : isIssuedEdit ? (
+        <p className="rounded-xl border border-border bg-surface/60 px-4 py-2 text-sm text-foreground-subtle">
+          Cuenta emitida — puedes modificar cliente, conceptos, métodos de pago y notas.
         </p>
       ) : null}
 

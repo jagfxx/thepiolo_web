@@ -230,14 +230,14 @@ export async function updateInvoice(
   });
   if (!existing) return null;
 
-  const isDraft = existing.status === "DRAFT";
+  const isEditable = existing.status !== "CANCELLED";
   const data: Prisma.InvoiceUpdateInput = {};
 
   if (input.status !== undefined) {
     data.status = input.status;
   }
 
-  if (isDraft) {
+  if (isEditable) {
     if (input.clientName !== undefined) data.clientName = input.clientName;
     if (input.clientIdType !== undefined) {
       data.clientIdType = input.clientIdType ?? null;
@@ -282,7 +282,7 @@ export async function updateInvoice(
 
   try {
     const invoice = await prisma.$transaction(async (tx) => {
-      if (isDraft && input.lineItems !== undefined) {
+      if (isEditable && input.lineItems !== undefined) {
         await tx.invoiceLineItem.deleteMany({ where: { invoiceId: id } });
         await tx.invoiceLineItem.createMany({
           data: input.lineItems.map((item, index) => ({
