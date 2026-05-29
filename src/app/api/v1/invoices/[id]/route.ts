@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveApiAuth } from "@/lib/api-auth";
-import { getInvoiceById, updateInvoice } from "@/lib/billing/invoices";
+import { deleteInvoice, getInvoiceById, updateInvoice } from "@/lib/billing/invoices";
 import { updateInvoiceSchema } from "@/lib/billing/validators";
 
 type Params = { params: Promise<{ id: string }> };
@@ -53,4 +53,19 @@ export async function PATCH(request: Request, { params }: Params) {
     const message = err instanceof Error ? err.message : "Error al actualizar cuenta de cobro";
     return NextResponse.json({ error: message }, { status: 400 });
   }
+}
+
+export async function DELETE(request: Request, { params }: Params) {
+  const authResult = await resolveApiAuth(request);
+  if (!authResult.ok) {
+    return NextResponse.json({ error: authResult.message }, { status: authResult.status });
+  }
+
+  const { id } = await params;
+  const deleted = await deleteInvoice(authResult.userId, id);
+  if (!deleted) {
+    return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

@@ -328,3 +328,68 @@ export function invoiceRowClass(status: InvoiceStatus): string {
       return `${base} hover:bg-surface/50`;
   }
 }
+
+export type InvoiceSummaryStats = {
+  owed: number;
+  paid: number;
+  paidThisMonth: number;
+  pendingThisMonth: number;
+};
+
+function monthRange(date = new Date()) {
+  const start = new Date(date.getFullYear(), date.getMonth(), 1);
+  const end = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+  return { start, end };
+}
+
+export async function getInvoiceSummaryStats(): Promise<InvoiceSummaryStats> {
+  const { start, end } = monthRange();
+  const pendingStatuses: InvoiceStatus[] = ["ISSUED", "DRAFT"];
+
+  const [owed, paid, paidThisMonth, pendingThisMonth] = await Promise.all([
+    prisma.invoice.aggregate({
+      where: { status: { in: pendingStatuses } },
+      _sum: { amount: true },
+    }),
+    prisma.invoice.aggregate({
+      where: { status: "PAID" },
+      _sum: { amount: true },
+    }),
+    prisma.invoice.aggregate({
+      where: {
+        status: "PAID",
+        updatedAt: { gte: start, lt: end },
+      },
+      _sum: { amount: true },
+    }),
+    prisma.invoice.aggregate({
+      where: {
+        status: { in: pendingStatuses },
+        issuedAt: { gte: start, lt: end },
+      },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  return {
+    owed: Number(owed._sum.amount ?? 0),
+    paid: Number(paid._sum.amount ?? 0),
+    paidThisMonth: Number(paidThisMonth._sum.amount ?? 0),
+    pendingThisMonth: Number(pendingThisMonth._sum.amount ?? 0),
+  };
+}
+
+export async function deleteInvoice(userId: string, id: string): Promise<boolean> {
+  const result = await prisma.invoice.deleteMany({
+    where: { id, createdById: userId },
+  });
+  return result.count > 0;
+}
+
+export async function deleteInvoices(userId: string, ids: string[]): Promise<number> {
+  if (ids.length === 0) return 0;
+  const result = await prisma.invoice.deleteMany({
+    where: { id: { in: ids }, createdById: userId },
+  });
+  return result.count;
+}
