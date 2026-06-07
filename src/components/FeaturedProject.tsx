@@ -72,39 +72,41 @@ export function FeaturedProject() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={w.visitSiteAria}
-          className="group relative block w-full overflow-hidden bg-[#050505]"
+          className="group block w-full overflow-hidden bg-[#050505]"
         >
-          <div className="relative w-full overflow-hidden sm:aspect-[1024/455]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/projects/tsm-hero.png"
-              srcSet="/projects/tsm-hero.png 1x, /projects/tsm-hero@2x.png 2x"
-              alt={w.title}
-              width={1024}
-              height={455}
-              decoding="async"
-              fetchPriority="high"
-              className="block h-auto w-full object-cover object-top sm:absolute sm:inset-0 sm:h-full"
-            />
-          </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#13131e] via-[#13131e]/30 to-transparent" />
-
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-8">
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
-              {w.caseStudy}
-            </p>
-            <h3 className="mt-2 font-display text-2xl font-semibold text-foreground sm:text-3xl lg:text-4xl">
-              {w.title}
-            </h3>
-            <p className="mt-2 max-w-xl text-sm text-foreground-subtle sm:text-base">
-              {w.subtitle}
-            </p>
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-gradient opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-              {w.visitSite}
-              <ExternalLinkIcon />
-            </span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/projects/tsm-hero.png"
+            srcSet="/projects/tsm-hero.png 1x, /projects/tsm-hero@2x.png 2x"
+            alt={w.title}
+            width={1024}
+            height={455}
+            decoding="async"
+            fetchPriority="high"
+            className="block aspect-[1024/455] h-auto w-full object-cover object-top"
+          />
         </a>
+
+        <div className="border-b border-border bg-surface px-5 py-5 sm:px-8 sm:py-6">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
+            {w.caseStudy}
+          </p>
+          <h3 className="mt-2 font-display text-2xl font-semibold text-foreground sm:text-3xl">
+            {w.title}
+          </h3>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground-subtle sm:text-base">
+            {w.subtitle}
+          </p>
+          <a
+            href={TSM_PROJECT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-gradient transition-opacity hover:opacity-80"
+          >
+            {w.visitSite}
+            <ExternalLinkIcon />
+          </a>
+        </div>
 
         <div className="border-t border-border p-6 sm:p-8 lg:p-10">
           <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
