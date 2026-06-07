@@ -17,9 +17,9 @@ export const TSM_PROJECT_URL = "https://transportservicemedellin.com";
 export const TSM_INSTAGRAM_URL = "https://www.instagram.com/transportservice_medellin";
 
 export const navKeys = [
-  "about",
   "services",
   "work",
+  "plans",
   "process",
   "stack",
   "contact",

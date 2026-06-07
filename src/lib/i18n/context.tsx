@@ -31,9 +31,9 @@ type LanguageContextValue = {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 const navHrefs: Record<NavKey, string> = {
-  about: "#about",
   services: "#services",
   work: "#work",
+  plans: "#plans",
   process: "#process",
   stack: "#stack",
   contact: "#contact",

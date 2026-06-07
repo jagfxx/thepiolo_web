@@ -2,18 +2,18 @@ import type { Dictionary } from "../types";
 
 export const es: Dictionary = {
   meta: {
-    title: "Thepiolo — Estudio Web Premium | Diseño y Desarrollo",
+    title: "THEPIOLO — Sitios Web Profesionales para Empresas | Medellín",
     description:
-      "THEPIOLO: estudio web premium en Medellín, Colombia. Diseño UI/UX, desarrollo Next.js, branding, landing pages y despliegue. Desarrollador creativo para productos digitales de alto nivel.",
+      "THEPIOLO: sitios web corporativos, landing pages y soluciones digitales para empresas en Medellín. Diseño profesional, precios claros y acompañamiento post-entrega.",
   },
   nav: {
-    about: "Nosotros",
     services: "Servicios",
-    work: "Proyectos",
+    work: "Casos",
+    plans: "Planes",
     process: "Proceso",
     stack: "Stack",
     contact: "Contacto",
-    getInTouch: "Contáctanos",
+    getInTouch: "Agenda una asesoría gratuita",
   },
   a11y: {
     openMenu: "Abrir menú",
@@ -22,104 +22,237 @@ export const es: Dictionary = {
     switchLanguage: "Cambiar idioma",
   },
   hero: {
-    logoAlt: "THEPIOLO — Estudio Web Digital",
-    tagline: "Estudio Web Digital",
-    headlineBefore: "Creamos",
-    headlineHighlight: "experiencias digitales",
-    headlineAfter: "premium.",
+    logoAlt: "THEPIOLO — Sitios web para empresas",
+    tagline: "Desarrollo web con enfoque empresarial",
+    headlineBefore: "Desarrollamos sitios web",
+    headlineHighlight: "profesionales",
+    headlineAfter: "y soluciones digitales para empresas.",
     description:
-      "Un estudio web moderno en la intersección de ingeniería, diseño y marca—para fundadores que exigen pulido, rendimiento e intención.",
-    ctaPrimary: "Iniciar proyecto",
-    ctaSecondary: "Ver proyecto destacado",
-    pills: ["Diseño Web", "Desarrollo", "Branding", "Despliegue"],
+      "Diseñamos y desarrollamos sitios web rápidos, modernos y preparados para representar tu negocio de forma profesional.",
+    ctaPrimary: "Agenda una asesoría gratuita",
+    ctaSecondary: "Ver planes y precios",
+    pills: ["Sitios corporativos", "Landing pages", "Desde $800.000", "Medellín, Colombia"],
   },
   about: {
     label: "Nosotros",
-    title: "Ingeniería técnica con visión creativa",
+    title: "Sitios web diseñados para transmitir confianza y representar tu negocio",
     description:
-      "THEPIOLO es un estudio digital independiente liderado por un ingeniero de sistemas que construye con precisión y diseña con criterio.",
+      "THEPIOLO ayuda a empresas y emprendedores a tener una presencia digital profesional—clara, confiable y orientada a generar resultados.",
     highlights: [
       {
-        title: "Ingeniería de Sistemas",
+        title: "Enfoque en tu negocio",
         description:
-          "Estudiante con mentalidad rigurosa y orientada a arquitectura aplicada a cada proyecto.",
+          "Cada proyecto parte de entender tu empresa, tus clientes y lo que necesitas comunicar.",
       },
       {
-        title: "Desarrollador Web",
+        title: "Presencia profesional",
         description:
-          "Desarrollo full-stack con frameworks modernos y código listo para producción.",
+          "Sitios que transmiten confianza desde el primer segundo—bien presentados, claros y fáciles de usar.",
       },
       {
-        title: "UI/UX y Branding",
+        title: "Resultados medibles",
         description:
-          "Interfaces e identidades intencionales, coherentes y con acabado premium.",
+          "Preparados para captar contactos, aparecer en Google y acompañar el crecimiento de tu empresa.",
       },
       {
-        title: "Despliegue y Mantenimiento",
+        title: "Acompañamiento real",
         description:
-          "Del lanzamiento al soporte a largo plazo—seguro, monitoreado y en mejora continua.",
+          "30 días de acompañamiento gratis después de la entrega—no te dejamos solo al lanzar.",
       },
       {
-        title: "Mentalidad de Seguridad",
+        title: "Precios transparentes",
         description:
-          "Enfoque orientado a ciberseguridad en confiabilidad, datos e infraestructura.",
+          "Planes claros desde el inicio, sin sorpresas—sabes qué incluye y cuánto inviertes.",
       },
     ],
   },
   services: {
     label: "Servicios",
-    title: "Todo lo que tu marca necesita online",
+    title: "Lo que tu negocio necesita para crecer online",
     description:
-      "Del primer boceto al despliegue en producción—ofertas enfocadas para productos digitales ambiciosos.",
+      "Soluciones web pensadas para generar confianza, atraer clientes y representar tu empresa de forma profesional.",
     items: [
       {
-        title: "Diseño Web",
+        title: "Sitios web corporativos",
         description:
-          "Interfaces con intención—jerarquía clara, tipografía refinada y visuales alineados a la marca.",
+          "Para empresas que necesitan comunicar servicios, experiencia y propuesta de valor con claridad y profesionalismo.",
       },
       {
-        title: "Desarrollo Web",
+        title: "Landing pages",
         description:
-          "Aplicaciones de nivel producción con stacks modernos, rendimiento y mantenibilidad.",
+          "Páginas enfocadas en captar clientes, presentar tu oferta y convertir visitas en contactos reales.",
       },
       {
-        title: "Landing Pages",
+        title: "Presencia profesional",
         description:
-          "Páginas rápidas y de alta conversión diseñadas para comunicar valor e impulsar acción.",
+          "Sitios rápidos y modernos que representan tu negocio las 24 horas—adaptados a celular, tablet y computador.",
       },
       {
-        title: "Branding",
+        title: "Soluciones a medida",
         description:
-          "Sistemas de identidad visual coherentes en web, producto y puntos de contacto digital.",
+          "Catálogos, cotizadores, portales y herramientas digitales adaptadas a la operación de tu empresa.",
       },
       {
-        title: "Mantenimiento",
+        title: "Visibilidad en Google",
         description:
-          "Actualizaciones, monitoreo y mejoras continuas para mantener tu producto seguro y actual.",
+          "Sitios preparados para SEO—para que tus clientes te encuentren cuando buscan lo que ofreces.",
       },
       {
-        title: "Soluciones Digitales",
+        title: "Acompañamiento post-lanzamiento",
         description:
-          "Productos digitales de punta a punta—del concepto al despliegue—para marcas y fundadores ambiciosos.",
+          "30 días de acompañamiento gratis después de la entrega—te apoyamos mientras tu sitio arranca.",
+      },
+    ],
+  },
+  plans: {
+    label: "Planes",
+    title: "Precios claros para tu negocio",
+    description:
+      "¿Qué hacemos? ¿Cuánto cuesta? Elige el plan que mejor se adapta a la etapa de tu empresa—sin sorpresas.",
+    ladderLabel: "Escalera de madurez",
+    specLabel: "Comparar planes",
+    specFeatureColumn: "Característica",
+    priceFrom: "Desde",
+    customPrice: "Cotización personalizada",
+    checkmark: "✓",
+    notApplicable: "—",
+    perAgreement: "Según acuerdo",
+    viewFeatures: "Ver características",
+    closeFeatures: "Cerrar",
+    featuresIncluded: "Incluye",
+    compareAll: "Comparar todos los planes",
+    items: [
+      {
+        id: "foundation",
+        step: "01",
+        title: "Foundation",
+        price: "$800.000 COP",
+        tagline:
+          "La base digital para negocios que necesitan una presencia profesional en internet.",
+        audience:
+          "Ideal para emprendedores, profesionales independientes y negocios que están dando sus primeros pasos en el mundo digital.",
+        cta: "Recibir asesoría para empezar",
+      },
+      {
+        id: "business",
+        step: "02",
+        title: "Business",
+        price: "$1.300.000 COP",
+        tagline:
+          "Una presencia digital corporativa para empresas que necesitan comunicar sus servicios, experiencia y propuesta de valor de manera profesional.",
+        audience:
+          "Ideal para empresas establecidas que requieren una estructura más completa y escalable.",
+        cta: "Asesoría para mi empresa",
+        highlighted: true,
+      },
+      {
+        id: "custom",
+        step: "03",
+        title: "Custom",
+        price: "Cotización personalizada",
+        tagline:
+          "¿Tu proyecto requiere algo más que una página web corporativa? Desarrollamos soluciones adaptadas a las necesidades específicas de tu negocio.",
+        audience:
+          "Cuéntanos tu idea y construiremos una solución pensada para tu negocio.",
+        examplesLabel: "Algunos ejemplos",
+        examples: [
+          "Catálogos personalizados",
+          "Cotizadores",
+          "Portales para clientes",
+          "Dashboards",
+          "Automatizaciones",
+          "Integraciones con servicios externos",
+          "Herramientas internas",
+          "Desarrollo web a medida",
+        ],
+        cta: "Asesoría sobre proyecto a medida",
+      },
+    ],
+    specRows: [
+      {
+        label: "Estructura del sitio",
+        foundation: "Una sola página",
+        business: "Multipágina (hasta 5)",
+        custom: "A medida",
+      },
+      {
+        label: "Secciones de contenido",
+        foundation: "Hasta 6",
+        business: "—",
+        custom: "—",
+      },
+      {
+        label: "Diseño personalizado",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Adaptado a móvil, tablet y desktop",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Formulario(s) de contacto",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Botón directo de WhatsApp",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Preparado para Google (SEO)",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Medición básica de tráfico",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Carga rápida y optimizada",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Publicación y puesta en marcha",
+        foundation: "✓",
+        business: "✓",
+        custom: "✓",
+      },
+      {
+        label: "Acompañamiento post-entrega",
+        foundation: "30 días gratis",
+        business: "30 días gratis",
+        custom: "Según acuerdo",
       },
     ],
   },
   work: {
-    label: "Proyecto Destacado",
+    label: "Caso de estudio",
     title: "Transport Service Medellín",
     description:
-      "Plataforma en producción para transporte y turismo privado en Medellín—bilingüe, catálogo de tours y experiencia de marca premium.",
+      "Empresa de transporte y turismo en Medellín—un sitio en producción que genera confianza, captura clientes y presenta su servicio de forma profesional.",
     caseStudy: "Caso de Estudio",
     subtitle:
-      "Transporte y turismo privado en Medellín — tours, recogida en aeropuerto y experiencia de reserva 24/7.",
-    body: "Entrega integral para una marca turística desde 2018: identidad visual, UI/UX, desarrollo en Next.js, despliegue en VPS y mantenimiento continuo. El sitio presenta más de 12 tours, reseñas de clientes y contenido bilingüe (ES/EN).",
-    tags: ["Branding", "Diseño UI", "Desarrollo", "Despliegue", "Mantenimiento"],
+      "Transporte y turismo privado en Medellín — más de 12 tours, reservas 24/7 y presencia bilingüe.",
+    body: "Proyecto real para una empresa operando desde 2018: sitio bilingüe con catálogo de tours, reseñas de clientes y experiencia de reserva. Resultado: presencia digital profesional que respalda la operación diaria del negocio.",
+    tags: ["Sitio corporativo", "Captación de clientes", "Bilingüe", "En producción", "Turismo"],
     features: [
-      "Carrusel hero con video e imágenes WebP optimizadas",
-      "Más de 12 páginas de tours con layouts dedicados",
-      "Sitio bilingüe (español / inglés) con next-intl",
-      "Reseñas, catálogo de servicios e historia de la empresa",
-      "Despliegue en producción con mantenimiento continuo",
+      "Catálogo de más de 12 tours con páginas dedicadas",
+      "Sitio bilingüe (español / inglés) para clientes locales e internacionales",
+      "Reseñas, servicios e historia de la empresa visibles desde el inicio",
+      "Experiencia de reserva clara—contacto y WhatsApp accesibles",
+      "En producción desde 2018 con mantenimiento continuo",
     ],
     stackLabel: "Desarrollado con",
     stack: ["Next.js 15", "next-intl", "Framer Motion", "Tailwind CSS", "Embla Carousel"],
@@ -127,51 +260,51 @@ export const es: Dictionary = {
     visitSiteAria: "Abrir el sitio de Transport Service Medellín en una nueva pestaña",
     visitInstagram: "Instagram",
     visitInstagramAria: "Abrir el Instagram de Transport Service Medellín en una nueva pestaña",
-    cta: "Hablemos de tu proyecto",
+    cta: "Asesoría sobre un proyecto similar",
   },
   process: {
     label: "Proceso",
-    title: "Un camino deliberado de la idea al lanzamiento",
+    title: "De la idea al lanzamiento—sin complicaciones",
     description:
-      "Fases estructuradas que mantienen el impulso y resultados predecibles.",
+      "Un proceso claro para que sepas qué esperar en cada etapa y cuándo ver resultados.",
     steps: [
       {
         step: "01",
-        title: "Descubrimiento",
+        title: "Conversación inicial",
         description:
-          "Entender objetivos, audiencia y restricciones técnicas para definir una dirección clara.",
+          "Entendemos tu negocio, tus clientes y qué necesitas lograr con tu sitio web.",
       },
       {
         step: "02",
-        title: "Diseño",
+        title: "Propuesta y diseño",
         description:
-          "Wireframes, sistemas UI y visuales alineados a la marca antes de escribir código.",
+          "Te presentamos la propuesta, el plan ideal y el diseño alineado a tu marca.",
       },
       {
         step: "03",
         title: "Desarrollo",
         description:
-          "Arquitectura limpia, implementación responsive y rendimiento desde el primer día.",
+          "Construimos tu sitio—rápido, adaptado a todos los dispositivos y listo para captar clientes.",
       },
       {
         step: "04",
         title: "Lanzamiento",
         description:
-          "Despliegue, bases SEO, analítica y entrega pulida lista para el mundo.",
+          "Publicamos tu sitio, configuramos lo necesario y te entregamos todo listo para operar.",
       },
       {
         step: "05",
-        title: "Mantenimiento",
+        title: "Acompañamiento",
         description:
-          "Soporte a largo plazo, actualizaciones e iteración según evoluciona tu negocio.",
+          "30 días de acompañamiento gratis—te apoyamos mientras tu sitio arranca y recibe visitas.",
       },
     ],
   },
   stack: {
-    label: "Stack Tecnológico",
-    title: "Construido con herramientas modernas y probadas",
+    label: "Tecnología",
+    title: "Construido con herramientas modernas y confiables",
     description:
-      "Un stack curado por velocidad, confiabilidad y mantenibilidad a largo plazo.",
+      "Usamos tecnología probada para que tu sitio sea rápido, seguro y fácil de mantener a largo plazo.",
     categories: {
       Framework: "Framework",
       UI: "UI",
@@ -189,24 +322,44 @@ export const es: Dictionary = {
   },
   contact: {
     label: "Contacto",
-    titleBefore: "Construyamos algo",
-    titleHighlight: "excepcional",
+    title: "¿No sabes qué solución necesita tu negocio?",
     description:
-      "¿Listo para un nuevo sitio, producto o refresh de marca? Escríbenos por correo, WhatsApp o Instagram—definimos el enfoque ideal juntos.",
-    responseTime: "Respuesta habitual en 24–48 horas",
-    directLinks: "Canales directos",
+      "Agenda una asesoría gratuita de 15 minutos y revisaremos tu caso para identificar la mejor opción para ti.",
+    reassurance: "Sin compromiso. Sin lenguaje técnico.",
+    whatsappCta: "Agenda una asesoría gratuita",
+    responseTime: "Respondemos en minutos por WhatsApp",
+    directLinks: "Otros canales",
+  },
+  leads: {
+    cta: "Agenda una asesoría gratuita",
+    floatingLabel: "Asesoría gratuita por WhatsApp con THEPIOLO",
+    messages: {
+      general:
+        "Hola THEPIOLO, vi su sitio web y me gustaría agendar una asesoría gratuita para mi negocio.",
+      hero: "Hola THEPIOLO, vi su sitio web y me gustaría agendar una asesoría gratuita.",
+      navbar: "Hola THEPIOLO, me gustaría agendar una asesoría gratuita para un sitio web.",
+      contact:
+        "Hola THEPIOLO, me gustaría agendar una asesoría gratuita de 15 minutos para revisar mi caso y conocer la mejor opción para mi negocio.",
+      work: "Hola THEPIOLO, vi su caso de estudio y me gustaría agendar una asesoría gratuita para un proyecto similar.",
+      foundation:
+        "Hola THEPIOLO, me interesa el plan Foundation. me gustaría agendar una asesoría gratuita.",
+      business:
+        "Hola THEPIOLO, me interesa el plan Business. me gustaría agendar una asesoría gratuita.",
+      custom:
+        "Hola THEPIOLO, tengo un proyecto a medida y me gustaría agendar una asesoría gratuita.",
+    },
   },
   social: {
     instagram: "Instagram",
     instagramAria: "Seguir a THEPIOLO en Instagram @thepiolo.co",
-    whatsapp: "WhatsApp",
-    whatsappAria: "Escribir a THEPIOLO por WhatsApp",
+    whatsapp: "Asesoría por WhatsApp",
+    whatsappAria: "Agendar asesoría gratuita con THEPIOLO por WhatsApp",
     email: "Correo",
     emailAria: "Enviar correo a THEPIOLO",
     connect: "Conectar",
   },
   footer: {
-    tagline: "Estudio Web Digital",
+    tagline: "Sitios web y soluciones digitales para empresas",
     rights: "Todos los derechos reservados.",
     connect: "Síguenos y contacto",
   },

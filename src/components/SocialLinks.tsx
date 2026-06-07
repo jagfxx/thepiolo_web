@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { siteConfig, mailtoUrl } from "@/lib/site";
+import { getLeadWhatsAppUrl } from "@/lib/leads";
 import { useLanguage } from "@/lib/i18n/context";
 
 type SocialLinksProps = {
@@ -38,22 +39,22 @@ function EmailIcon({ className = "h-5 w-5" }: { className?: string }) {
 
 const links = [
   {
-    key: "instagram" as const,
-    href: siteConfig.instagram.url,
-    labelKey: "instagram" as const,
-    Icon: InstagramIcon,
-  },
-  {
     key: "whatsapp" as const,
-    href: siteConfig.whatsapp.url,
     labelKey: "whatsapp" as const,
     Icon: WhatsAppIcon,
+    primary: true,
+  },
+  {
+    key: "instagram" as const,
+    labelKey: "instagram" as const,
+    Icon: InstagramIcon,
+    primary: false,
   },
   {
     key: "email" as const,
-    href: mailtoUrl,
     labelKey: "email" as const,
     Icon: EmailIcon,
+    primary: false,
   },
 ];
 
@@ -61,15 +62,21 @@ export function SocialLinks({ variant = "icons", className = "" }: SocialLinksPr
   const { dict } = useLanguage();
   const s = dict.social;
 
+  const hrefFor = (key: (typeof links)[number]["key"]) => {
+    if (key === "whatsapp") return getLeadWhatsAppUrl(dict.leads.messages, "general");
+    if (key === "instagram") return siteConfig.instagram.url;
+    return mailtoUrl;
+  };
+
   if (variant === "buttons") {
     return (
       <div className={`flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center ${className}`}>
-        {links.map(({ key, href, labelKey, Icon }, i) => (
+        {links.map(({ key, labelKey, Icon, primary }, i) => (
           <motion.a
             key={key}
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={hrefFor(key)}
+            target={key === "email" ? undefined : "_blank"}
+            rel={key === "email" ? undefined : "noopener noreferrer"}
             aria-label={
               labelKey === "instagram"
                 ? s.instagramAria
@@ -84,8 +91,8 @@ export function SocialLinks({ variant = "icons", className = "" }: SocialLinksPr
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={
-              i === 0
-                ? "inline-flex items-center justify-center gap-2.5 rounded-full bg-gradient-accent px-6 py-3 text-sm font-medium text-white glow-accent transition-all hover:brightness-110"
+              primary
+                ? "inline-flex items-center justify-center gap-2.5 rounded-full bg-[#25D366] px-6 py-3 text-sm font-medium text-white shadow-[0_0_32px_rgba(37,211,102,0.25)] transition-all hover:brightness-110"
                 : "inline-flex items-center justify-center gap-2.5 rounded-full border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground transition-all hover:border-border-hover hover:bg-surface-elevated"
             }
           >
@@ -99,12 +106,12 @@ export function SocialLinks({ variant = "icons", className = "" }: SocialLinksPr
 
   return (
     <ul className={`flex items-center gap-3 ${className}`}>
-      {links.map(({ key, href, labelKey, Icon }) => (
+      {links.map(({ key, labelKey, Icon }) => (
         <li key={key}>
           <a
-            href={href}
+            href={hrefFor(key)}
             target="_blank"
-            rel="noopener noreferrer me"
+            rel={key === "email" ? undefined : "noopener noreferrer me"}
             aria-label={
               labelKey === "instagram"
                 ? s.instagramAria

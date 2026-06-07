@@ -4,7 +4,22 @@ export const locales: Locale[] = ["en", "es"];
 export const defaultLocale: Locale = "en";
 export const LOCALE_STORAGE_KEY = "thepiolo-locale";
 
-export type NavKey = "about" | "services" | "work" | "process" | "stack" | "contact";
+export type NavKey =
+  | "services"
+  | "work"
+  | "plans"
+  | "process"
+  | "stack"
+  | "contact";
+
+export type PlanId = "foundation" | "business" | "custom";
+
+export type PlanSpecRow = {
+  label: string;
+  foundation: string;
+  business: string;
+  custom: string;
+};
 
 export type Dictionary = {
   meta: {
@@ -41,6 +56,36 @@ export type Dictionary = {
     description: string;
     items: { title: string; description: string }[];
   };
+  plans: {
+    label: string;
+    title: string;
+    description: string;
+    ladderLabel: string;
+    specLabel: string;
+    specFeatureColumn: string;
+    priceFrom: string;
+    customPrice: string;
+    checkmark: string;
+    notApplicable: string;
+    perAgreement: string;
+    viewFeatures: string;
+    closeFeatures: string;
+    featuresIncluded: string;
+    compareAll: string;
+    items: {
+      id: PlanId;
+      step: string;
+      title: string;
+      price: string;
+      tagline: string;
+      audience: string;
+      examplesLabel?: string;
+      examples?: string[];
+      cta: string;
+      highlighted?: boolean;
+    }[];
+    specRows: PlanSpecRow[];
+  };
   work: {
     label: string;
     title: string;
@@ -72,11 +117,26 @@ export type Dictionary = {
   };
   contact: {
     label: string;
-    titleBefore: string;
-    titleHighlight: string;
+    title: string;
     description: string;
+    reassurance: string;
+    whatsappCta: string;
     responseTime: string;
     directLinks: string;
+  };
+  leads: {
+    cta: string;
+    floatingLabel: string;
+    messages: {
+      general: string;
+      hero: string;
+      navbar: string;
+      contact: string;
+      work: string;
+      foundation: string;
+      business: string;
+      custom: string;
+    };
   };
   social: {
     instagram: string;

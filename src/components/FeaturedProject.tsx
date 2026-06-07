@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Section } from "@/components/ui/Section";
 import { TSM_INSTAGRAM_URL, TSM_PROJECT_URL } from "@/lib/data";
+import { getLeadWhatsAppUrl } from "@/lib/leads";
 import { useLanguage } from "@/lib/i18n/context";
 import { fadeUp, scaleIn, staggerContainer } from "@/lib/motion";
 import { GradientButton } from "@/components/ui/GradientButton";
@@ -72,37 +72,24 @@ export function FeaturedProject() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={w.visitSiteAria}
-          className="group relative block w-full overflow-hidden bg-black"
+          className="group relative block w-full overflow-hidden bg-[#050505]"
         >
-          <div className="relative mx-auto aspect-[1024/482] w-full max-w-[1024px]">
-            <Image
-              src="/projects/tsm-preview.png"
+          <div className="relative w-full overflow-hidden sm:aspect-[1024/455]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/projects/tsm-hero.png"
+              srcSet="/projects/tsm-hero.png 1x, /projects/tsm-hero@2x.png 2x"
               alt={w.title}
-              fill
-              unoptimized
-              className="object-contain object-center"
-              sizes="(max-width: 1024px) 100vw, 1024px"
-              priority
+              width={1024}
+              height={455}
+              decoding="async"
+              fetchPriority="high"
+              className="block h-auto w-full object-cover object-top sm:absolute sm:inset-0 sm:h-full"
             />
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#13131e] via-[#13131e]/25 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#13131e] via-[#13131e]/30 to-transparent" />
 
-          <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto max-w-[1024px]">
-            <div className="absolute left-5 top-5 sm:left-8 sm:top-8">
-              <div className="rounded-xl border border-border/80 bg-surface/90 p-2.5 backdrop-blur-md">
-                <Image
-                  src="/projects/tsm-logo.svg"
-                  alt=""
-                  width={120}
-                  height={40}
-                  className="h-8 w-auto sm:h-9"
-                  aria-hidden
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto max-w-[1024px] p-5 sm:p-8">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 sm:p-8">
             <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
               {w.caseStudy}
             </p>
@@ -206,7 +193,7 @@ export function FeaturedProject() {
               <GradientButton href={TSM_INSTAGRAM_URL} variant="secondary" external>
                 {w.visitInstagram}
               </GradientButton>
-              <GradientButton href="#contact" variant="secondary">
+              <GradientButton href={getLeadWhatsAppUrl(dict.leads.messages, "work")} external>
                 {w.cta}
               </GradientButton>
             </div>

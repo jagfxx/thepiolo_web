@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { useLanguage } from "@/lib/i18n/context";
+import { getLeadWhatsAppUrl } from "@/lib/leads";
 import { GradientButton } from "@/components/ui/GradientButton";
 import { GridBackground } from "@/components/ui/GridBackground";
 import { GlowOrb } from "@/components/ui/GlowOrb";
@@ -66,8 +67,10 @@ export function Hero() {
           custom={4}
           className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start"
         >
-          <GradientButton href="#contact">{h.ctaPrimary}</GradientButton>
-          <GradientButton href="#work" variant="secondary">
+          <GradientButton href={getLeadWhatsAppUrl(dict.leads.messages, "hero")} external>
+            {h.ctaPrimary}
+          </GradientButton>
+          <GradientButton href="#plans" variant="secondary">
             {h.ctaSecondary}
           </GradientButton>
         </motion.div>

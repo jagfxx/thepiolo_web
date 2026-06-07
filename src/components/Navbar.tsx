@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { navKeys } from "@/lib/data";
+import { getLeadWhatsAppUrl } from "@/lib/leads";
 import { useLanguage } from "@/lib/i18n/context";
 import type { NavKey } from "@/lib/i18n/types";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
@@ -66,12 +67,14 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <LanguageSwitcher />
           <LocaleContentFade>
-            <Link
-              href="#contact"
+            <a
+              href={getLeadWhatsAppUrl(dict.leads.messages, "navbar")}
+              target="_blank"
+              rel="noopener noreferrer"
               className="rounded-full bg-gradient-accent px-5 py-2 text-sm font-medium text-white transition-all hover:brightness-110"
             >
               {dict.nav.getInTouch}
-            </Link>
+            </a>
           </LocaleContentFade>
         </div>
 
@@ -126,13 +129,15 @@ export function Navbar() {
                 </li>
               ))}
               <li className="mt-2 border-t border-border pt-2">
-                <Link
-                  href="#contact"
+                <a
+                  href={getLeadWhatsAppUrl(dict.leads.messages, "navbar")}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="block rounded-full bg-gradient-accent px-4 py-2.5 text-center text-sm font-medium text-white"
                   onClick={() => setMobileOpen(false)}
                 >
                   {dict.nav.getInTouch}
-                </Link>
+                </a>
               </li>
             </ul>
           </LocaleContentFade>
