@@ -39,10 +39,26 @@ const navHrefs: Record<NavKey, string> = {
   contact: "#contact",
 };
 
-function readStoredLocale(): Locale {
+function detectBrowserLocale(): Locale {
+  const languages = [
+    ...(typeof navigator !== "undefined" ? navigator.languages : []),
+    typeof navigator !== "undefined" ? navigator.language : "",
+  ];
+
+  for (const language of languages) {
+    const code = language.toLowerCase();
+    if (code.startsWith("es")) return "es";
+    if (code.startsWith("en")) return "en";
+  }
+
+  return defaultLocale;
+}
+
+function readLocale(): Locale {
   if (typeof window === "undefined") return defaultLocale;
   const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-  return stored === "es" || stored === "en" ? stored : defaultLocale;
+  if (stored === "es" || stored === "en") return stored;
+  return detectBrowserLocale();
 }
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -53,9 +69,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const stored = readStoredLocale();
-    setLocaleState(stored);
-    setDictLocale(stored);
+    const initial = readLocale();
+    setLocaleState(initial);
+    setDictLocale(initial);
     setMounted(true);
   }, []);
 
