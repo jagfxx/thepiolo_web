@@ -1,5 +1,5 @@
 name: Deploy to VPS
-# redeploy trigger 2026-06-09
+# redeploy trigger 2026-06-08b
 
 on:
   push:
