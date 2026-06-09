@@ -91,17 +91,21 @@ export type Dictionary = {
     title: string;
     description: string;
     caseStudy: string;
-    subtitle: string;
-    body: string;
-    tags: string[];
-    features: string[];
     stackLabel: string;
-    stack: string[];
     visitSite: string;
-    visitSiteAria: string;
     visitInstagram: string;
-    visitInstagramAria: string;
     cta: string;
+    projects: {
+      id: "tsm" | "rosleben";
+      title: string;
+      subtitle: string;
+      body: string;
+      tags: string[];
+      features: string[];
+      stack: string[];
+      visitSiteAria: string;
+      visitInstagramAria: string;
+    }[];
   };
   process: {
     label: string;
